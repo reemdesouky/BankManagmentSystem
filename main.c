@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include <stdlib.h>
-
-int main()
+void main()
 {
-    printf("Hello world!\n");
-    return 0;
+    char user[15];
+    int pass;
+    printf("Username: ");
+    scanf("%s",user);
+    printf("\nPassword: ");
+    scanf("%d",&pass);
 }
