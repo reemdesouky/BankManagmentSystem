@@ -90,12 +90,21 @@ void exit()
 {
     
 }
-void main()
-{
-    char user[15];
-    int pass;
-    printf("Username: ");
-    scanf("%s",user);
-    printf("\nPassword: ");
-    scanf("%d",&pass);
+int main(){
+    char entered_username[50];
+    char entered_password[50];
+     do {
+    printf("HELLO\n");
+    printf("Enter username:");
+    scanf("%s", entered_username);
+    printf("Enter password:");
+    scanf("%s", entered_password);
+     if (login(entered_username, entered_password)) {
+            printf(".........LOADING.........\n");
+            break;}
+             else {
+            printf("Wrong, try again\n");}}
+             while (1); // Loop until valid login
+
+    return 0;
 }
