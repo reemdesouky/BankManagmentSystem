@@ -20,10 +20,25 @@ typedef struct{
     char balance[20]; 
     date dateOpened;
 }Accounts;
-void checkLogin (char user[],int pass)
-{
-    
-}
+int checkLogin(char *username, char *password) {
+    FILE *file = fopen("users.txt", "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return 0;}
+
+    users stored;
+    int isValid = 0;
+
+    // Read and validate user details
+    //fscanf successfully reads and assigns values to both variables, it returns 2,
+    //indicating that it matched two items
+
+      while (fscanf(file, "%s %s", stored.username, stored.password) == 2) {
+        if (strcmp(username, stored.username) == 0 && strcmp(password, stored.password) == 0) {
+            isValid = 1;
+            break;}}
+    fclose(file);
+    return isValid;}
 void load ()
 {
     char info [200][200]
@@ -100,7 +115,7 @@ int main(){
     printf("Enter password:");
     scanf("%s", entered_password);
      if (login(entered_username, entered_password)) {
-            printf(".........LOADING.........\n");
+            load();
             break;}
              else {
             printf("Wrong, try again\n");}}
