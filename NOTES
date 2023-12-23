@@ -3,3 +3,24 @@ gets and scanf in users validationa and in accounts validation difference due to
 "+": Update mode - The file is opened for both reading and writing.
 so we use r+ to update and read
 
+fread Function:
+
+fread is a function in C used to read binary data from a file.
+&acc - Address of the Variable:
+
+&acc represents the memory address where the data read from the file will be stored.
+acc is the variable of type accounts (presumably a struct).
+sizeof(accounts) - Size of Each Element:
+
+sizeof(accounts) calculates the size of one element of type accounts in bytes.
+It provides the number of bytes needed to store the data structure.
+1 - Number of Elements to Read:
+
+1 specifies the number of elements (of size sizeof(accounts)) to read in a single operation.
+accounts - File Pointer:
+
+accounts is the file pointer pointing to the file from which data is being read.
+== 1 - Check for Success:
+
+The == 1 checks if fread successfully reads one element from the file.
+If successful, the loop continues; if not, it exits.
