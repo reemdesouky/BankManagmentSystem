@@ -9,17 +9,15 @@ int login(char *username, char *password) {
         printf("Error opening file.\n");
         return 0;}
 
-    char stored_username[150];
-    char stored_password[150];
+    users stored;
     int isValid = 0;
 
     // Read and validate user details
-
     //fscanf successfully reads and assigns values to both variables, it returns 2,
     //indicating that it matched two items
 
-    while (fscanf(file, "%s %s", stored_username, stored_password) == 2) {
-        if (strcmp(username, stored_username) == 0 && strcmp(password, stored_password) == 0) {
+      while (fscanf(file, "%s %s", stored.username, stored.password) == 2) {
+        if (strcmp(username, stored.username) == 0 && strcmp(password, stored.password) == 0) {
             isValid = 1;
             break;}}
     fclose(file);
@@ -28,7 +26,6 @@ int login(char *username, char *password) {
 int main(){
     char entered_username[50];
     char entered_password[50];
-
      do {
     printf("HELLO\n");
     printf("Enter username:");
@@ -44,3 +41,4 @@ int main(){
 
     return 0;
 }
+
