@@ -6,11 +6,11 @@ typedef struct {
     int year;
 }date;
 typedef struct{
-    int accountnum;
-    char[100] name;
-    int mobilnum;
-    char[50] mail;
-    float balance; 
+    char accountnum[10];
+    char name[100];
+    chat mobilenum[11];
+    char mail[50];
+    char balance[20]; 
     date dateOpened;
 }Accounts;
 void checkLogin (char user[],int pass)
@@ -21,6 +21,7 @@ void load ()
 {
     char info [200][200]
     FILE *p=fopen("users.txt"."r");
+    fcolse(p);
 }
 void menu ()
 {
