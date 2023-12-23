@@ -24,3 +24,9 @@ accounts is the file pointer pointing to the file from which data is being read.
 
 The == 1 checks if fread successfully reads one element from the file.
 If successful, the loop continues; if not, it exits.
+
+
+In C, when you pass an array to a function, 
+you should provide the array name without the square brackets.
+The array name itself represents the address of the first element of the array.
+Adding the square brackets is not syntactically correct and might lead to a compilation error.
