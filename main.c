@@ -1,10 +1,17 @@
 #include <stdio.h>
 #include <string.h>
+//users
+typedef struct{
+char username[50];
+char password[50];
+}users;
+//date opened
 typedef struct {
     int day;
     int month;
     int year;
 }date;
+//accounts
 typedef struct{
     char accountnum[10];
     char name[100];
