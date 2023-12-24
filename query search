@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    char accountNumber[20];
+    char name[50];
+    char email[50];
+    float balance;
+    char mobile[15];
+    char dateOpened[20];
+} accounts;
+
+
+void AccountDetails(accounts *account) {
+    printf("Account Number: %s\n", account->accountNumber);     //accesses the accountNumber field of the accounts structure.
+    printf("Name: %s\n", account->name);
+    printf("Email: %s\n", account->email);
+    printf("Balance: %.2f\n", account->balance);
+    printf("Mobile: %s\n", account->mobile);
+    printf("Date Opened: %s\n", account->dateOpened);
+}
+
+// Function to search for an account
+int querysearch(char *accountNumber, accounts *found) {
+    FILE *file = fopen("accounts.txt", "r");
+
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return 0;
+    }
+
+    accounts stored;
+
+   //leading space ensures that any leading whitespace characters are skipped
+    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                  stored.accountNumber, stored.name, stored.email,
+                  &stored.balance, stored.mobile, stored.dateOpened) == 6) {
+
+        if (strcmp(stored.accountNumber, accountNumber) == 0) {
+            // Copy the found account details
+            *found = stored;
+            fclose(file);
+            return 1;  // Account found
+        }
+    }
+
+    fclose(file);
+    return 0;  // Account not found
+}
+
+int main() {
+    accounts found;
+    char accountnumber[20];   //given by user
+    do {
+    printf("Enter account number: ");
+    scanf("%19s", accountnumber);   //used to read up to 19 char from user
+
+    // Checking
+
+    if (querysearch(accountnumber, &found) == 1) {
+        printf("\n");
+        printf("Account found successfully\n");
+        printf("\n");
+        printf("Account Details\n");
+        printf("\n");
+        AccountDetails(&found);
+    } else {
+        printf("Account not found......try again\n");
+    }}
+    while(1);
+
+    return 0;
+}
