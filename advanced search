@@ -1,1 +1,63 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char accountNumber[20];
+    char name[50];
+    char email[50];
+    float balance;
+    char mobile[15];
+    char dateOpened[20];
+} accounts;
+
+void AccountDetails(accounts *account) {
+    printf("Account Number: %s\n", account->accountNumber);
+    printf("Name: %s\n", account->name);
+    printf("Email: %s\n", account->email);
+    printf("Balance: %.2f $\n", account->balance);
+    printf("Mobile: %s\n", account->mobile);
+    printf("Opened: %s\n", account->dateOpened);
+    printf("\n");
+}
+
+//advanced search of a keyword
+
+void advancedSearch(char *keyword) {
+    FILE *file = fopen("accounts.txt", "r");
+
+    if (file == NULL) {
+        printf("Error \n");
+        return;
+    }
+
+    accounts stored;
+    
+    printf("\n");
+
+    printf("Search results:\n");
+
+    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                  stored.accountNumber, stored.name, stored.email,
+                  &stored.balance, stored.mobile, stored.dateOpened) == 6) {
+
+        // Check if the keyword is present in the name
+        if (strstr(stored.name, keyword) != NULL) {
+            AccountDetails(&stored);
+        }
+    }
+
+    fclose(file);
+}
+
+int main() {
+    char keyword[50];
+
+    printf("Enter keyword: ");
+    scanf("%s", keyword);
+
+    advancedSearch(keyword);
+
+    return 0;
+}
 
