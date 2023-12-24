@@ -30,3 +30,8 @@ In C, when you pass an array to a function,
 you should provide the array name without the square brackets.
 The array name itself represents the address of the first element of the array.
 Adding the square brackets is not syntactically correct and might lead to a compilation error.
+
+
+%[abc]: Matches any character 'a', 'b', or 'c'.
+%[^abc]: Matches any character except 'a', 'b', or 'c'.
+So, %19[^\n] reads up to 19 characters until a newline character 
