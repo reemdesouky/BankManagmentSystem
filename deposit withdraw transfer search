@@ -1,0 +1,418 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char accountnumber[20];
+    char name[50];
+    char email[50];
+    float balance;
+    char mobile[15];
+    char dateOpened[20];
+} accounts;
+
+void Menu() {
+    printf("...Main Menu...\n");
+    printf("1. ADD\n");
+    printf("2. DELETE\n");
+    printf("3. SEARCH\n");
+    printf("4. ADVANCED SEARCH\n");
+    printf("5. WITHDRAW\n");
+    printf("6. DEPOSIT\n");
+    printf("7. TRANSFER\n");
+    printf("8. PRINT\n");
+    printf("9. QUIT\n");
+    printf("10. REPORT\n");
+}
+
+void AccountDetails(accounts *account) {
+    printf("\n");
+    printf("Account Number: %s\n", account->accountnumber);
+    printf("Name: %s\n", account->name);
+    printf("Email: %s\n", account->email);
+    printf("Balance: %.2f $\n", account->balance);
+    printf("Mobile: %s\n", account->mobile);
+    printf("Opened: %s\n", account->dateOpened);
+    printf("\n");
+}
+
+void advancedSearch(char *keyword) {
+    FILE *file = fopen("accounts.txt", "r");
+    if (file == NULL) {
+        printf("ERROR.\n");
+        return;
+    }
+
+    accounts stored;
+
+    printf("\n");
+    printf("Search results:\n");
+
+    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                  stored.accountnumber, stored.name, stored.email,
+                  &stored.balance, stored.mobile, stored.dateOpened) == 6) {
+
+        if (strstr(stored.name, keyword) != NULL) {
+            AccountDetails(&stored);  //question of how mechanism
+        }
+    }
+
+    fclose(file);
+}
+
+int querysearch(char *accountnumber, accounts *found) {
+    FILE *file = fopen("accounts.txt", "r");
+
+    if (file == NULL) {
+        printf("ERROR.\n");
+        return 0;
+    }
+
+    accounts stored;
+
+    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                  stored.accountnumber, stored.name, stored.email,
+                  &stored.balance, stored.mobile, stored.dateOpened) == 6) {
+
+        if (strcmp(stored.accountnumber, accountnumber) == 0) {
+            *found = stored;
+            fclose(file);
+            return 1;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+void deposit(char *accountnumber, float amount) {
+    accounts stored, updated;
+    if (amount <= 10000) {  // Corrected the if condition
+        if (querysearch(accountnumber, &stored) == 1) {
+            stored.balance += amount;
+
+            FILE *readFile = fopen("accounts.txt", "r");
+            FILE *writeFile = fopen("temp.txt", "w");
+
+            if (readFile == NULL || writeFile == NULL) {
+                printf("ERROR.\n");
+                return;
+            }
+
+            while (fscanf(readFile, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                          updated.accountnumber, updated.name, updated.email,
+                          &updated.balance, updated.mobile, updated.dateOpened) == 6) {
+                if (strcmp(updated.accountnumber, accountnumber) == 0) {
+                    updated.balance = stored.balance;
+                }
+                fprintf(writeFile, "%s, %s, %s, %.2f, %s, %s\n",
+                        updated.accountnumber, updated.name, updated.email,
+                        updated.balance, updated.mobile, updated.dateOpened);
+            }
+
+            fclose(readFile);
+            fclose(writeFile);
+
+            remove("accounts.txt");
+            rename("temp.txt", "accounts.txt");
+
+            printf("...Deposited successfully...\n");
+            AccountDetails(&stored);
+        }
+        else {
+            printf("Account not found.\n");
+        }
+    }
+    else {
+        printf("Please enter an amount less than $10,000.\n");
+    }
+}
+
+void withdraw(char *accountnumber, float amount) {
+    accounts stored, updated;
+    if (amount <= 10000) {  // Corrected the if condition
+        if (querysearch(accountnumber, &stored) == 1) {
+            if (stored.balance >= amount) {
+                stored.balance -= amount;
+
+                FILE *readFile = fopen("accounts.txt", "r");
+                FILE *writeFile = fopen("temp.txt", "w");
+
+                if (readFile == NULL || writeFile == NULL) {
+                    printf("ERROR.\n");
+                    return;
+                }
+
+                while (fscanf(readFile, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                              updated.accountnumber, updated.name, updated.email,
+                              &updated.balance, updated.mobile, updated.dateOpened) == 6) {
+                    if (strcmp(updated.accountnumber, accountnumber) == 0) {
+                        updated.balance = stored.balance;
+                    }
+                    fprintf(writeFile, "%s, %s, %s, %.2f, %s, %s\n",
+                            updated.accountnumber, updated.name, updated.email,
+                            updated.balance, updated.mobile, updated.dateOpened);
+                }
+
+                fclose(readFile);
+                fclose(writeFile);
+
+                remove("accounts.txt");
+                rename("temp.txt", "accounts.txt");
+
+                printf("...Withdrawn successfully...\n");
+                AccountDetails(&stored);
+            }
+            else {
+                printf("Insufficient balance for withdrawal.\n");
+            }
+        }
+        else {
+            printf("Account not found.\n");
+        }
+    }
+    else {
+        printf("Please enter an amount less than $10,000.\n");
+    }
+}
+
+void transfer(char *fromaccountnumber, char *toaccountnumber, float amount) {
+    accounts fromAccount, toAccount;
+    if (amount <= 10000) {
+        if (querysearch(fromaccountnumber, &fromAccount) == 1 &&
+            querysearch(toaccountnumber, &toAccount) == 1) {
+
+            if (fromAccount.balance >= amount) {
+                fromAccount.balance -= amount;
+                toAccount.balance += amount;
+
+                FILE *readFile = fopen("accounts.txt", "r");
+                FILE *writeFile = fopen("temp.txt", "w");
+
+                if (readFile == NULL || writeFile == NULL) {
+                    printf("ERROR.\n");
+                    return;
+                }
+
+                accounts updated;
+                while (fscanf(readFile, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                              updated.accountnumber, updated.name, updated.email,
+                              &updated.balance, updated.mobile, updated.dateOpened) == 6) {
+                    if (strcmp(updated.accountnumber, fromaccountnumber) == 0) {
+                        updated.balance = fromAccount.balance;
+                    } else if (strcmp(updated.accountnumber, toaccountnumber) == 0) {
+                        updated.balance = toAccount.balance;
+                    }
+                    fprintf(writeFile, "%s, %s, %s, %.2f, %s, %s\n",
+                            updated.accountnumber, updated.name, updated.email,
+                            updated.balance, updated.mobile, updated.dateOpened);
+                }
+
+                fclose(readFile);
+                fclose(writeFile);
+
+                remove("accounts.txt");
+                rename("temp.txt", "accounts.txt");
+
+                printf("...Transfer completed successfully...\n");
+                printf("From Account:\n");
+                AccountDetails(&fromAccount);
+                printf("To Account:\n");
+                AccountDetails(&toAccount);
+            }
+            else {
+                printf("Insufficient balance for transfer.\n");
+            }
+        }
+        else {
+            printf("One or both accounts not found.\n");
+        }
+    }
+    else {
+        printf("Please enter an amount less than $10,000.\n");
+    }
+}
+
+
+void add_account() {
+    FILE *file = fopen("accounts.txt", "a");
+
+    if (file == NULL) {
+        printf("ERROR.\n");
+        return;
+    }
+
+    accounts new_account;
+
+    printf("Enter Account Number: ");
+    scanf("%19s", new_account.accountnumber);
+    printf("Enter your name: ");
+    scanf("%49s", new_account.name);
+    printf("Enter your email: ");
+    scanf("%49s", new_account.email);
+    printf("Enter Balance: ");
+    scanf("%f", &new_account.balance);
+    printf("Enter your mobile number : ");
+    scanf("%14s", new_account.mobile);
+    printf("Enter Date Opened: ");      //function eltime
+    scanf("%19s", new_account.dateOpened);
+
+    fprintf(file, "%s, %s, %s, %.2f, %s, %s\n",
+            new_account.accountnumber, new_account.name, new_account.email,
+            new_account.balance, new_account.mobile, new_account.dateOpened);
+
+    fclose(file);
+    printf("...Account added successfully...\n");
+}
+
+void deleteAccount() {
+    char accountnumber[20];
+    printf("Enter the account number to delete: ");
+    scanf("%19s", accountnumber);
+
+    FILE *readFile = fopen("accounts.txt", "r");
+    FILE *writeFile = fopen("temp.txt", "w");
+
+    if (readFile == NULL || writeFile == NULL) {
+        printf("ERROR.\n");
+        return;
+    }
+
+    accounts stored;
+
+    int found = 0;
+    while (fscanf(readFile, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                  stored.accountnumber, stored.name, stored.email,
+                  &stored.balance, stored.mobile, stored.dateOpened) == 6) {
+
+        if (strcmp(stored.accountnumber, accountnumber) == 0) {
+            found = 1;
+            printf("Deleted Account:\n");
+            AccountDetails(&stored);
+        } else {
+            fprintf(writeFile, "%s, %s, %s, %.2f, %s, %s\n",
+                    stored.accountnumber, stored.name, stored.email,
+                    stored.balance, stored.mobile, stored.dateOpened);
+        }
+    }
+
+    fclose(readFile);
+    fclose(writeFile);
+
+    if (!found) {
+        printf("Account not found.\n");
+        remove("temp.txt");
+    } else {
+        remove("accounts.txt");
+        rename("temp.txt", "accounts.txt");
+        printf("...Account deleted successfully...\n");
+    }
+}
+
+void printAccounts() {
+    FILE *file = fopen("accounts.txt", "r");
+
+    if (file == NULL) {
+        printf("ERROR.\n");
+        return;
+    }
+
+    accounts stored;
+
+    printf("\n");
+
+    printf("All accounts:\n");
+
+    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                  stored.accountnumber, stored.name, stored.email,
+                  &stored.balance, stored.mobile, stored.dateOpened) == 6) {
+        AccountDetails(&stored);
+    }
+
+    fclose(file);
+}
+
+void quit() {
+    printf("Goodbye!\n");
+}
+
+int main() {
+    int choice;
+    float amount;
+    char accountnumber[20];
+    accounts found;
+
+    do {
+        Menu();
+        printf("\n");
+        printf("Choose your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                add_account  ();
+                break;
+            case 2:
+                deleteAccount();
+                break;
+            case 3:
+                printf("Enter account number: ");
+                scanf("%19s", accountnumber);
+                if (querysearch(accountnumber, &found) == 1) {
+                    printf("Account found:\n");
+                    AccountDetails(&found);
+                } else {
+                    printf("Account not found.\n");
+                }
+                break;
+            case 4:
+                printf("Enter keyword: ");
+                char keyword[50];
+                scanf("%49s", keyword);
+                advancedSearch(keyword);
+                break;
+            case 5:
+                printf("Enter account number: ");
+                scanf("%19s", accountnumber);
+                printf("Enter withdraw amount: ");
+                scanf("%f", &amount);
+                withdraw(accountnumber, amount);
+                break;
+            case 6:
+                printf("Enter account number: ");
+                scanf("%19s", accountnumber);
+                printf("Enter deposit amount: ");
+                scanf("%f", &amount);
+                deposit(accountnumber, amount);
+                break;
+            case 7:
+                printf("Enter the account number to transfer from: ");
+                char fromAccount[20];
+                scanf("%19s", fromAccount);
+
+                printf("Enter the account number to transfer to: ");
+                char toAccount[20];
+                scanf("%19s", toAccount);
+
+                printf("Enter the amount to transfer: ");
+                scanf("%f", &amount);
+
+                transfer(fromAccount, toAccount, amount);
+                break;
+            case 8:
+                printAccounts();
+                break;
+            case 9:
+                quit();
+                break;
+            case 10:
+                // Implement REPORT function
+                break;
+            default:
+                printf("Invalid please enter your choose again.\n");
+        }
+
+    } while (choice != 9);
+
+    return 0;
+}
