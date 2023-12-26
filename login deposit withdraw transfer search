@@ -7,7 +7,7 @@ char password[50];
 }users;
 
 int login(char *username, char *password) {
-    FILE *file = fopen("users.txt", "r");
+    FILE *file = fopen("users.txt", "r"); 
     if (file == NULL) {
         printf("Error opening file.\n");
         return 0;}
@@ -39,16 +39,17 @@ typedef struct {
 
 void Menu() {
     printf("...Main Menu...\n");
-    printf("1. ADD\n");
-    printf("2. DELETE\n");
-    printf("3. SEARCH\n");
-    printf("4. ADVANCED SEARCH\n");
-    printf("5. WITHDRAW\n");
-    printf("6. DEPOSIT\n");
-    printf("7. TRANSFER\n");
-    printf("8. PRINT\n");
-    printf("9. QUIT\n");
-    printf("10. REPORT\n");
+    printf("- ADD\n");
+    printf("- DELETE\n");
+    printf("- MODIFY\n");
+    printf("- SEARCH\n");
+    printf("- ADVANCED SEARCH\n");
+    printf("- WITHDRAW\n");
+    printf("- DEPOSIT\n");
+    printf("- TRANSFER\n");
+    printf("- REPORT\n");
+    printf("- PRINT\n");
+    printf("- QUIT\n");
 }
 
 void AccountDetails(accounts *account) {
@@ -387,73 +388,35 @@ int main() {
         Menu();
         printf("\n");
         printf("Choose your choice: ");
-        scanf("%d", &choice);
+        scanf("%19s", choice);
 
-        switch (choice) {
-            case 1:
-                add_account  ();
-                break;
-            case 2:
-                deleteAccount();
-                break;
-            case 3:
-                printf("Enter account number: ");
-                scanf("%19s", accountnumber);
-                if (querysearch(accountnumber, &found) == 1) {
-                    printf("Account found:\n");
-                    AccountDetails(&found);
-                } else {
-                    printf("Account not found.\n");
-                }
-                break;
-            case 4:
-                printf("Enter keyword: ");
-                char keyword[50];
-                scanf("%49s", keyword);
-                advancedSearch(keyword);
-                break;
-            case 5:
-                printf("Enter account number: ");
-                scanf("%19s", accountnumber);
-                printf("Enter withdraw amount: ");
-                scanf("%f", &amount);
-                withdraw(accountnumber, amount);
-                break;
-            case 6:
-                printf("Enter account number: ");
-                scanf("%19s", accountnumber);
-                printf("Enter deposit amount: ");
-                scanf("%f", &amount);
-                deposit(accountnumber, amount);
-                break;
-            case 7:
-                printf("Enter the account number to transfer from: ");
-                char fromAccount[20];
-                scanf("%19s", fromAccount);
-
-                printf("Enter the account number to transfer to: ");
-                char toAccount[20];
-                scanf("%19s", toAccount);
-
-                printf("Enter the amount to transfer: ");
-                scanf("%f", &amount);
-
-                transfer(fromAccount, toAccount, amount);
-                break;
-            case 8:
-                printAccounts();
-                break;
-            case 9:
-                quit();
-                break;
-            case 10:
-                // Implement REPORT function
-                break;
-            default:
-                printf("Invalid please enter your choose again.\n");
+        if (strcmp(choice, "ADD") == 0) {   //comparing given word by the choices 
+            addAccount();
+        } else if (strcmp(choice, "DELETE") == 0) {
+            deleteAccount();
+        } else if (strcmp(choice, "MODIFY") == 0) {
+            // Add code for MODIFY
+        } else if (strcmp(choice, "SEARCH") == 0) {
+           querysearch();
+        } else if (strcmp(choice, "ADVANCED SEARCH") == 0) {
+          advancedSearch();
+        } else if (strcmp(choice, "WITHDRAW") == 0) {
+           withdraw();
+        } else if (strcmp(choice, "DEPOSIT") == 0) {
+         deposit();
+        } else if (strcmp(choice, "TRANSFER") == 0) {
+          transfer();
+        } else if (strcmp(choice, "REPORT") == 0) {
+       
+        } else if (strcmp(choice, "PRINT") == 0) {
+         
+        } else if (strcmp(choice, "QUIT") == 0) {
+            quit();
+        } else {
+            printf("Invalid choice. Please enter your choice again.\n");
         }
 
-    } while (choice != 9);
+    } while (strcmp(choice, "QUIT") != 0);
 
     return 0;
 }
