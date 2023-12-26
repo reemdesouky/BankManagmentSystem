@@ -1,6 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+typedef struct{
+char username[50];
+char password[50];
+}users;
+
+int login(char *username, char *password) {
+    FILE *file = fopen("users.txt", "r");
+    if (file == NULL) {
+        printf("Error opening file.\n");
+        return 0;}
+
+    users stored;
+    int isValid = 0;
+
+    // Read and validate user details
+    //fscanf successfully reads and assigns values to both variables, it returns 2,
+    //indicating that it matched two items
+
+      while (fscanf(file, "%s %s", stored.username, stored.password) == 2) {
+        if (strcmp(username, stored.username) == 0 && strcmp(password, stored.password) == 0) {
+            isValid = 1;
+            break;}}
+    fclose(file);
+    return isValid;}
+
+
 
 typedef struct {
     char accountnumber[20];
@@ -92,7 +118,7 @@ void deposit(char *accountnumber, float amount) {
             stored.balance += amount;
 
             FILE *readFile = fopen("accounts.txt", "r");
-            FILE *writeFile = fopen("temp.txt", "w");
+            FILE *writeFile = fopen("new.txt", "w");
 
             if (readFile == NULL || writeFile == NULL) {
                 printf("ERROR.\n");
@@ -114,7 +140,7 @@ void deposit(char *accountnumber, float amount) {
             fclose(writeFile);
 
             remove("accounts.txt");
-            rename("temp.txt", "accounts.txt");
+            rename("new.txt", "accounts.txt");
 
             printf("...Deposited successfully...\n");
             AccountDetails(&stored);
@@ -136,7 +162,7 @@ void withdraw(char *accountnumber, float amount) {
                 stored.balance -= amount;
 
                 FILE *readFile = fopen("accounts.txt", "r");
-                FILE *writeFile = fopen("temp.txt", "w");
+                FILE *writeFile = fopen("new.txt", "w");
 
                 if (readFile == NULL || writeFile == NULL) {
                     printf("ERROR.\n");
@@ -158,7 +184,7 @@ void withdraw(char *accountnumber, float amount) {
                 fclose(writeFile);
 
                 remove("accounts.txt");
-                rename("temp.txt", "accounts.txt");
+                rename("new.txt", "accounts.txt");
 
                 printf("...Withdrawn successfully...\n");
                 AccountDetails(&stored);
@@ -187,7 +213,7 @@ void transfer(char *fromaccountnumber, char *toaccountnumber, float amount) {
                 toAccount.balance += amount;
 
                 FILE *readFile = fopen("accounts.txt", "r");
-                FILE *writeFile = fopen("temp.txt", "w");
+                FILE *writeFile = fopen("new.txt", "w");
 
                 if (readFile == NULL || writeFile == NULL) {
                     printf("ERROR.\n");
@@ -212,7 +238,7 @@ void transfer(char *fromaccountnumber, char *toaccountnumber, float amount) {
                 fclose(writeFile);
 
                 remove("accounts.txt");
-                rename("temp.txt", "accounts.txt");
+                rename("new.txt", "accounts.txt");
 
                 printf("...Transfer completed successfully...\n");
                 printf("From Account:\n");
@@ -271,7 +297,7 @@ void deleteAccount() {
     scanf("%19s", accountnumber);
 
     FILE *readFile = fopen("accounts.txt", "r");
-    FILE *writeFile = fopen("temp.txt", "w");
+    FILE *writeFile = fopen("new.txt", "w");
 
     if (readFile == NULL || writeFile == NULL) {
         printf("ERROR.\n");
@@ -301,10 +327,10 @@ void deleteAccount() {
 
     if (!found) {
         printf("Account not found.\n");
-        remove("temp.txt");
+        remove("new.txt");
     } else {
         remove("accounts.txt");
-        rename("temp.txt", "accounts.txt");
+        rename("new.txt", "accounts.txt");
         printf("...Account deleted successfully...\n");
     }
 }
@@ -337,6 +363,21 @@ void quit() {
 }
 
 int main() {
+    char entered_username[50];
+    char entered_password[50];
+     do {
+    printf("HELLO\n");
+    printf("Enter username:");
+    scanf("%s", entered_username);
+    printf("Enter password:");
+    scanf("%s", entered_password);
+     if (login(entered_username, entered_password)) {
+            printf(".........LOADING.........\n");
+            break;}
+             else {
+            printf("Wrong, try again\n");}}
+             while (1); // Loop until valid login
+
     int choice;
     float amount;
     char accountnumber[20];
