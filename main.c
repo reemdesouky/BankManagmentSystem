@@ -3,7 +3,6 @@
 #include<time.h>
 #define maxrow 500
 #define maxcol 500
-
 typedef struct
 {
     char username[50];
@@ -26,7 +25,8 @@ typedef struct
     double balance;
     date dateOpened;
 } Accounts;
-
+Accounts acc[200];
+int NumberOfAccounts =0;
 int login(char *username, char *password) // A function to check whether the user is correct or not
 {
     FILE *file = fopen("users.txt", "r");
@@ -70,7 +70,7 @@ void print_accounts(Accounts acc) //A function to print one account details
     }
 }
 
-void load(char temp[], Accounts *acc) //loading data and store it in the array structure acc
+void load(char temp[][maxcol], Accounts *acc) //loading data and store it in the array structure acc
 {
     char *token = strtok(temp, ",");
     strcpy(acc->accountnum, token);
@@ -160,100 +160,168 @@ int check_mail(char mail[]) // to check the whether the entered email are correc
 // Function to search for an account
 int querysearch(char *accountNumber, Accounts *found)
 {
-    FILE *file = fopen("accounts.txt", "r");
-
-    if (file == NULL)
-    {
-        printf("Error opening file.\n");
-        return 0;
-    }
-
-    Accounts stored;
-
     // Find the account with the given account number
-    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
-                  stored.accountnum, stored.name, stored.mail,
-                  &stored.balance, stored.mobilenum, stored.dateOpened) == 6)
+    for(int i=0; i<200; i++)
     {
-
-        if (strcmp(stored.accountnum, accountNumber) == 0)
+        if (strcmp(acc[i].accountnum, accountNumber) == 0)
         {
             // Copy the found account details
-            *found = stored;
-            fclose(file);
+            *found = acc[i];
             return 1;  // Account found
         }
     }
-
-    fclose(file);
     return 0;  // Account not found
 }
 
-void add(Accounts accounts[], int *numAccounts) //A function to add new acount
+void add() //A function to add new acount
 {
-    FILE *f = fopen("accounts.txt", "a");
     Accounts found;
 
-    if (f!=NULL)
+    Accounts newaccount; //struct for the new account
+    // do while method to get all members of struct while checking using above functions
+    do
     {
-        Accounts newaccount; //struct for the new account
-        // do while method to get all members of struct while checking using above functions
-        do
-        {
-            printf("Enter account number:");
-            scanf("%s",newaccount.accountnum);
+        printf("Enter account number:");
+        scanf("%s",newaccount.accountnum);
 
-            if (querysearch(newaccount.accountnum, &found))
-                printf("Repeated account number , Please try again.\n");
-        }
-        while (querysearch(newaccount.accountnum,&found)||!check_numbers(newaccount.accountnum,10));
-
-        getchar(); // to handle newline left by scanf
-        do
-        {
-            printf("Enter name:");
-            fgets(newaccount.name, sizeof(newaccount.name), stdin);
-            newaccount.name[strcspn(newaccount.name, "\n")] = '\0'; //to assign last char to null char
-            //strcspn is used to find the length of the name until the first newline character.
-        }
-        while (!check_chars(newaccount.name,strcspn(newaccount.name, "\n")));
-
-        do
-        {
-            printf("Enter mobile number:");
-            scanf("%12s", newaccount.mobilenum);
-        }
-        while (!check_numbers(newaccount.mobilenum, 11) ||
-                (newaccount.mobilenum[0]!='0'||
-                 newaccount.mobilenum[1]!='1'||
-                 (newaccount.mobilenum[2]!='1'&&newaccount.mobilenum[2]!='2'&&newaccount.mobilenum[2]!='0')));
-        getchar();
-
-        do
-        {
-            printf("Enter email:");
-            scanf("%49s", newaccount.mail);  // Limit the length to MAX_EMAIL_LENGTH - 1
-            while (getchar() != '\n');  // Consume any extra characters, including newline
-        }
-        while (!check_mail(newaccount.mail));
-
-
-        todayDate(&newaccount.dateOpened); //to assign the day
-        newaccount.balance=0; //account starts by 0.0 balance
-        (*numAccounts)++;
-
-        fprintf(f, "%s,%s,%s,%.2lf,%s,%s/%s/%s\n", newaccount.accountnum, newaccount.name, newaccount.mail,newaccount.balance,
-                newaccount.mobilenum,newaccount.dateOpened.day,newaccount.dateOpened.month,newaccount.dateOpened.year);
-        //prints the new account in the file
-        printf("Account added successfully.\n"); //confirmation of the process success
-        fclose(f); //EOF
+        if (querysearch(newaccount.accountnum, &found))
+            printf("Repeated account number , Please try again.\n");
     }
-    else
+    while (querysearch(newaccount.accountnum,&found)||!check_numbers(newaccount.accountnum,10));
+
+    getchar(); // to handle newline left by scanf
+    do
     {
-        printf("File does not exist.\n"); //in case the file can not be reached
+        printf("Enter name:");
+        fgets(newaccount.name, sizeof(newaccount.name), stdin);
+        newaccount.name[strcspn(newaccount.name, "\n")] = '\0'; //to assign last char to null char
+        //strcspn is used to find the length of the name until the first newline character.
     }
+    while (!check_chars(newaccount.name,strcspn(newaccount.name, "\n")));
+
+    do
+    {
+        printf("Enter mobile number:");
+        scanf("%12s", newaccount.mobilenum);
+    }
+    while (!check_numbers(newaccount.mobilenum, 11) ||
+            (newaccount.mobilenum[0]!='0'||
+             newaccount.mobilenum[1]!='1'||
+             (newaccount.mobilenum[2]!='1'&&newaccount.mobilenum[2]!='2'&&newaccount.mobilenum[2]!='0')));
+    getchar();
+
+    do
+    {
+        printf("Enter email:");
+        scanf("%49s", newaccount.mail);  // Limit the length to MAX_EMAIL_LENGTH - 1
+        while (getchar() != '\n');  // Consume any extra characters, including newline
+    }
+    while (!check_mail(newaccount.mail));
+
+
+    todayDate(&newaccount.dateOpened); //to assign the day
+    newaccount.balance=0; //account starts by 0.0 balance
+    NumberOfAccounts++;
+
+    acc[NumberOfAccounts+1]=newaccount;
+    //prints the new account in the array
+    printf("Account added successfully.\n"); //confirmation of the process success
+    //save(); //to check for saving
+}
+void save()
+{
+    printf("Do you want to save ? 1- YES\n2- NO\n");
+    int choice;
+    scanf("%d",&choice);
+
+    do{
+        if (choice==1)
+    {
+        char *ptr=fopen("accounts.txt","w");
+        for (int i=0 ; i<=NumberOfAccounts;i++)
+           { fprintf(ptr,"%s,%s,%s,%.2lf,%s,%s/%s/%s",acc[i].accountnum, acc[i].name, acc[i].mail, acc[i].balance, acc[i].mobilenum, acc[i].dateOpened.day,
+               acc[i].dateOpened.month, acc[i].dateOpened.year);
+           }
+           printf("Changes has been successfully saved.");
+
+    }
+    else if (choice ==2)
+    {
+        printf("Do you want to exit?\n1- YES\n2-NO\n");
+        scanf("%d",&choice);
+        if (choice==1)
+        exit_program();
+        else menu();
+
+    }
+    else ("Sorry I don't understand your choice please enter a valid choice: \n");
+    }
+    while(choice !=1||choice !=2);
+}
+// A function to be called in other functions to exit program
+void exit_program ()
+{
+    printf("Exiting program.\n");
+    exit(0);
 }
 
+void menu()
+{
+    int choice;
+    do
+    {
+        printf("\nWelcome! Please choose what you want to do\n");
+        printf("1- ADD\n");
+        printf("2- DELETE\n");
+        printf("3- MODIFY\n");
+        printf("4- SEARCH\n");
+        printf("5- ADVANCED SEARCH\n");
+        printf("6- WITHDRAW\n");
+        printf("7- DEPOSIT\n");
+        printf("8- TRANSFER\n");
+        printf("9- REPORT\n");
+        printf("10- PRINT\n");
+        printf("11- QUIT\n");
+        printf("Enter your choice:");
+        scanf("%d", &choice);
+
+        // Perform the selected action
+        switch (choice)
+        {
+        case 1:
+            add();
+            break;
+        case 2:
+            //deleteAccount(accounts, &numAccounts);
+            break;
+        case 3:
+            //modifyAccount(accounts, numAccounts);
+            break;
+        case 4:
+        {
+            char numsearch[11]; //a string just to scan account number
+            printf("Enter account number :\n");
+            scanf("%s",numsearch);
+            Accounts store;
+            if (querysearch(numsearch,&store));
+            {
+                printf("Account found  ! Do you want to print account datails ?\n1- YES \n2- NO\n");
+                int yesOrNo; //variable to help to choose
+                scanf("%d",&yesOrNo);
+                if(yesOrNo) print_accounts(store);
+                else break;
+            }
+        }
+        case 10:
+            //exit_program();
+        default:
+            printf("Invalid choice. Please enter a valid choice.\n");
+            menu();
+        }
+
+    }
+    while (choice!= 4);
+}
 
 int main()
 {
@@ -278,8 +346,7 @@ int main()
     }
     while (1); // Loop until valid login
     char temp[maxrow][maxcol];  //temporary array to avoid editing in the file and\or the acc array
-    int i = 0;
-    Accounts acc[100];
+    int i=0;
     FILE *ptr = fopen("accounts.txt", "r");
 
     if (!ptr) //handling if the file is not found
@@ -292,6 +359,7 @@ int main()
         while (fgets(temp[i], maxcol, ptr)) //reads each line and load it separately
         {
             load(temp[i], &acc[i]);
+            NumberOfAccounts++;
             i++;
         }
         printf("Data has been successfully uploaded to the system.\nNumber of accounts =%d\n",i+1);
@@ -299,39 +367,6 @@ int main()
     }
 
     fclose(ptr);
-    Accounts accounts[100];
-    int numAccounts = 0;
-    int choice;
-    do
-    {
-        printf("\nWelcome! Please choose what you want to do\n");
-        printf("1- ADD\n");
-        printf("2- DELETE\n");
-        printf("3- MODIFY\n");
-        printf("4- EXIT\n");
-        printf("Enter your choice:");
-        scanf("%d", &choice);
-
-        // Perform the selected action
-        switch (choice)
-        {
-        case 1:
-            add(accounts, &numAccounts);
-            break;
-        case 2:
-            //deleteAccount(accounts, &numAccounts);
-            break;
-        case 3:
-            //modifyAccount(accounts, numAccounts);
-            break;
-        case 4:
-            printf("Exiting program.\n");
-            break;
-        default:
-            printf("Invalid choice. Please enter a valid choice.\n");
-        }
-
-    }
-    while (choice!= 4);
+    menu();
     return 0;
 }
