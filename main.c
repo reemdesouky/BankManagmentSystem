@@ -13,7 +13,7 @@ typedef struct
 {
     char day[3];
     char month[3];
-    char year[5];
+    char year[6];
 } date;
 
 typedef struct
@@ -198,18 +198,17 @@ void add() //A function to add new acount
     do
     {
         printf("Enter mobile number:");
-        scanf("%12s", newaccount.mobilenum);
+        gets(newaccount.mobilenum);
     }
     while (!check_numbers(newaccount.mobilenum, 11) ||
             (newaccount.mobilenum[0]!='0'||
              newaccount.mobilenum[1]!='1'||
              (newaccount.mobilenum[2]!='1'&&newaccount.mobilenum[2]!='2'&&newaccount.mobilenum[2]!='0')));
-    getchar();
 
     do
     {
         printf("Enter email:");
-        scanf("%49s", newaccount.mail);  // Limit the length to MAX_EMAIL_LENGTH - 1
+        gets(newaccount.mail);  // Limit the length to MAX_EMAIL_LENGTH - 1
     }
     while (!check_mail(newaccount.mail));
 
@@ -217,6 +216,7 @@ void add() //A function to add new acount
     todayDate(&newaccount.dateOpened); //to assign the day
     newaccount.balance=0; //account starts by 0.0 balance
     NumberOfAccounts++;
+    newaccount.dateOpened.year[strlen(newaccount.dateOpened.year)] = '\n';
 
     acc[NumberOfAccounts-1]=newaccount;
     //prints the new account in the array
@@ -225,46 +225,73 @@ void add() //A function to add new acount
 }
 void save()
 {
-    printf("Do you want to save ?\n1- YES\n2- NO\n");
-    int choice;
+    printf("Do you want to save ? Enter the number of your choice\n1- YES\n2- NO\n");
+    char choice[5];
     do
     {
-        scanf("%d",&choice);
-        if (choice==1)
+        scanf("%s",choice);
+        if (strcmp(choice, "1") == 0)
         {
             FILE *ptr=fopen("accounts.txt","w");
             for (int i=0 ; i<NumberOfAccounts; i++)
-            {           fprintf(ptr,"%s,",acc[i].accountnum);
-                        fprintf(ptr,"%s,",acc[i].name);
-                        fprintf(ptr,"%s,",acc[i].mail);
-                        fprintf(ptr,"%.2lf,",acc[i].balance);
-                        fprintf(ptr,"%s,",acc[i].mobilenum);
-                        fprintf(ptr,"%s/",acc[i].dateOpened.day);
-                        fprintf(ptr,"%s/",acc[i].dateOpened.month);
-                        fprintf(ptr,"%s ",acc[i].dateOpened.year);
+            {
+                //fprintf(ptr,"%s,%s,%s,%.2lf,%s,%s/%s/%s",acc[i].accountnum, acc[i].name, acc[i].mail, acc[i].balance, acc[i].mobilenum, acc[i].dateOpened.day,
+                //acc[i].dateOpened.month, acc[i].dateOpened.year);
+                fprintf(ptr,"%s,",acc[i].accountnum);
+                fprintf(ptr,"%s,",acc[i].name);
+                fprintf(ptr,"%s,",acc[i].mail);
+                fprintf(ptr,"%.2lf,",acc[i].balance);
+                fprintf(ptr,"%s,",acc[i].mobilenum);
+                fprintf(ptr,"%s/",acc[i].dateOpened.day);
+                fprintf(ptr,"%s/",acc[i].dateOpened.month);
+                fprintf(ptr,"%s",acc[i].dateOpened.year);
 
             }
-            printf("Changes has been successfully saved.");
+            printf("Changes has been successfully saved.\n");
+             do
+            {
+                printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
+                scanf("%s",choice);
+                getchar();
+                if (strcmp(choice, "1") == 0)
+                    exit_program();
+                else if (strcmp(choice, "2") == 0)
+                {
+                    menu();
+                    break;
+                }
+                else ("Sorry I don't understand your choice please enter a valid choice: \n");
+            }
+            while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
             fclose(ptr);
 
         }
-        else if (choice ==2)
+        else if (strcmp(choice, "2") == 0)
         {
-            printf("Do you want to exit?\n1-YES\n2-NO\n");
-            scanf("%d",&choice);
-            if (choice==1)
-                exit_program();
-            else
-            {menu();
-            break;}
+            do
+            {
+                printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
+                scanf("%s",choice);
+                getchar();
+                if (strcmp(choice, "1") == 0)
+                    exit_program();
+                else if (strcmp(choice, "2") == 0)
+                {
+                    menu();
+                    break;
+                }
+                else ("Sorry I don't understand your choice please enter a valid choice: \n");
+            }
+            while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
 
         }
-        else
-        {
-            ("Sorry I don't understand your choice please enter a valid choice: \n");
+
+    else
+    {
+        ("Sorry I don't understand your choice please enter a valid choice: \n");
         }
     }
-    while(choice !=1&&choice !=2);
+    while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
 }
 // A function to be called in other functions to exit program
 void exit_program ()
@@ -290,9 +317,9 @@ void menu()
         printf("9- REPORT\n");
         printf("10- PRINT\n");
         printf("11- QUIT\n");
-        printf("Enter your choice number:");
+        printf("Enter the number of your choice: ");
         scanf("%d", &choice);
-
+        getchar();
         // Perform the selected action
         switch (choice)
         {
