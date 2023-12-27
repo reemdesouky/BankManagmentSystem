@@ -130,7 +130,7 @@ int check_mail(char mail[]) // to check the whether the entered email are correc
 
     for (i; mail[i]!='@'; i++) //stops before @
     {
-        if (!((mail[i]>=97&&mail[i]<=122)||mail[i]=='.'||mail[i]=='_'))
+        if (!((mail[i]>=97&&mail[i]<=122)||mail[i]=='.'||mail[i]=='_'||(mail[i]>=48&&mail[i]<=57)))
         {
             flag=0;
         }
@@ -161,7 +161,7 @@ int check_mail(char mail[]) // to check the whether the entered email are correc
 int querysearch(char *accountNumber, Accounts *found)
 {
     // Find the account with the given account number
-    for(int i=0; i<200; i++)
+    for(int i=0; i<NumberOfAccounts; i++)
     {
         if (strcmp(acc[i].accountnum, accountNumber) == 0)
         {
@@ -235,8 +235,6 @@ void save()
             FILE *ptr=fopen("accounts.txt","w");
             for (int i=0 ; i<NumberOfAccounts; i++)
             {
-                //fprintf(ptr,"%s,%s,%s,%.2lf,%s,%s/%s/%s",acc[i].accountnum, acc[i].name, acc[i].mail, acc[i].balance, acc[i].mobilenum, acc[i].dateOpened.day,
-                //acc[i].dateOpened.month, acc[i].dateOpened.year);
                 fprintf(ptr,"%s,",acc[i].accountnum);
                 fprintf(ptr,"%s,",acc[i].name);
                 fprintf(ptr,"%s,",acc[i].mail);
@@ -248,7 +246,7 @@ void save()
 
             }
             printf("Changes has been successfully saved.\n");
-             do
+            do
             {
                 printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
                 scanf("%s",choice);
@@ -286,9 +284,9 @@ void save()
 
         }
 
-    else
-    {
-        ("Sorry I don't understand your choice please enter a valid choice: \n");
+        else
+        {
+            ("Sorry I don't understand your choice please enter a valid choice: \n");
         }
     }
     while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
@@ -339,13 +337,31 @@ void menu()
             printf("Enter account number :\n");
             scanf("%s",numsearch);
             Accounts store;
-            if (querysearch(numsearch,&store)==1);
+            if (querysearch(numsearch,&store))
             {
                 printf("Account found  ! Do you want to print account datails ?\n1- YES \n2- NO\n");
                 int yesOrNo; //variable to help to choose
                 scanf("%d",&yesOrNo);
                 if(yesOrNo==1) print_accounts(store);
             }
+            else
+                printf("Account is not found!\n");
+            do
+            {
+                printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
+                char choice[5];
+                scanf("%s",choice);
+                getchar();
+                if (strcmp(choice, "1") == 0)
+                    exit_program();
+                else if (strcmp(choice, "2") == 0)
+                {
+                    menu();
+                    break;
+                }
+                else ("Sorry I don't understand your choice please enter a valid choice: \n");
+            }
+            while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
         }
         case 11:
             exit_program();
