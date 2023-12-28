@@ -1,0 +1,15 @@
+Accessing the file directly each time you need to perform an operation on the account data can be inefficient in terms of both time and resources. Loading the data into an array of structs (in-memory representation) allows for quicker and more flexible operations.
+
+Here are a few reasons why working with an array of structs in memory is preferred:
+
+Performance: Reading from and writing to a file involves I/O operations, which are generally slower than accessing data in memory. By loading the data into an array of structs, you reduce the number of file operations, making your program faster.
+
+Flexibility: Once the data is in memory, you can perform various operations on it without repeatedly accessing the file. This flexibility is especially important if you need to perform multiple operations on the data in a short period.
+
+Reduced File Access: Accessing a file for each operation may lead to unnecessary wear on storage media and increased resource usage. Keeping the data in memory minimizes file access and is more resource-efficient.
+
+Simplicity: Working with an array of structs in memory simplifies the code. You can use standard array operations and algorithms without worrying about file I/O details for each operation.
+
+However, there are scenarios where direct file access may be preferred, such as when dealing with very large datasets that don't fit comfortably in memory or when changes to the data need to be immediately reflected in the file.
+
+In the case of small to moderately sized datasets, reading the data into memory, performing operations, and then writing the updated data back to the file is a common and efficient approach.
