@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include<time.h>
@@ -172,7 +173,151 @@ int querysearch(char *accountNumber, Accounts *found)
     }
     return 0;  // Account not found
 }
+/*void advancedSearch(char *keyword) {
+    FILE *file = fopen("accounts.txt", "r");
+    if (file == NULL) {
+        printf("ERROR.\n");
+        return;
+    }
 
+    Accounts stored;
+
+    printf("\n");
+    printf("Search results:\n");
+
+    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
+                  stored.accountnum, stored.name, stored.mail,
+                  &stored.balance, stored.mobilenum, stored.dateOpened) == 6) {
+
+        if (strstr(stored.name, keyword) != NULL) {
+            print_accounts(stored);  //question of how mechanism
+        }
+    }
+
+    fclose(file);
+    exit_program();
+}
+*/
+void modifyAccount(Accounts arraccounts[], int numofaccounts)
+{
+    char numaccountmod[11];
+    int found=0,i;
+
+    printf("Enter account number to modify:");
+    scanf("%s",numaccountmod);
+
+    for (i=0; i<numofaccounts; ++i)
+    {
+        if (strcmp(arraccounts[i].accountnum,numaccountmod)==0)
+        {
+            found=1;
+            break;
+        }
+    }
+    if(found)
+    {
+        char field[5];
+        do
+        {
+            printf("1-Name.\n");
+            printf("2-Email address.\n");
+            printf("3-Mobile Number.\n");
+            printf("4-Nothing.\n");
+            printf("Please Enter the number of the field you want to modify:");
+            getchar();
+            scanf("%s",field);
+            if (strcmp(field,"1")==0)
+            {
+                do
+                {
+                    printf("Enter your new name:");
+                    getchar();
+                    scanf("%[^\n]", arraccounts[i].name); //read until new line
+                }
+                while(!check_chars(arraccounts[i].name,strlen(arraccounts[i].name)));
+
+            }
+            else if (strcmp(field,"2")==0)
+            {
+                do
+                {
+                    printf("Enter your new email:");
+                    getchar();
+                    scanf("%[^\n]", arraccounts[i].mail);
+                }
+                while (!check_mail(arraccounts[i].mail));
+
+            }
+            else if (strcmp(field,"3")==0)
+            {
+                do
+                {
+                    printf("Enter mobile number:");
+                    getchar();
+                    scanf("%12s",arraccounts[i].mobilenum);
+                }
+                while (!check_numbers(arraccounts[i].mobilenum, 11));
+
+            }
+            else if (strcmp(field,"4")==0)
+            {
+                printf("Nothing modified.\n");
+
+            }
+            else
+            {
+                printf("Invalid choice , Please try again.\n");
+
+            }
+        }
+        while(strcmp(field,"4")!=0);
+        printf("Account modified successfully.\n");
+        save();
+    }
+    else
+        printf("Account does not exist.");
+
+}
+void deleteAccount(Accounts arraccounts[], int* numofaccounts)
+{
+    char numaccountdel[20];
+    int found = 0, i, j;
+
+    printf("Enter account number to delete: ");
+    scanf("%s", numaccountdel);
+
+    for (i = 0; i < *numofaccounts; i++)
+    {
+        if (strcmp(arraccounts[i].accountnum, numaccountdel)==0)
+        {
+            found = 1;
+            break;
+        }
+    }
+
+    if (found)
+    {
+        if (arraccounts[i].balance==0.0)
+        {
+            for (j=i; j <*numofaccounts-1; j++)
+            {
+                arraccounts[j]=arraccounts[j + 1];
+            }
+            (*numofaccounts)--;
+            printf("Account deleted successfully.\n");
+        }
+        else
+        {
+            printf("Cannot delete accounts with non-zero balance.\n");
+        }
+    }
+    else
+    {
+        printf("Account does not exist.\n");
+    }
+
+    save();
+}
 void add() //A function to add new acount
 {
     Accounts found;
@@ -248,17 +393,7 @@ void save()
             printf("Changes has been successfully saved.\n");
             do
             {
-                printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
-                scanf("%s",choice);
-                getchar();
-                if (strcmp(choice, "1") == 0)
-                    exit_program();
-                else if (strcmp(choice, "2") == 0)
-                {
-                    menu();
-                    break;
-                }
-                else ("Sorry I don't understand your choice please enter a valid choice: \n");
+                exit_program();
             }
             while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
             fclose(ptr);
@@ -266,21 +401,7 @@ void save()
         }
         else if (strcmp(choice, "2") == 0)
         {
-            do
-            {
-                printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
-                scanf("%s",choice);
-                getchar();
-                if (strcmp(choice, "1") == 0)
-                    exit_program();
-                else if (strcmp(choice, "2") == 0)
-                {
-                    menu();
-                    break;
-                }
-                else ("Sorry I don't understand your choice please enter a valid choice: \n");
-            }
-            while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
+            exit_program();
 
         }
 
@@ -294,84 +415,117 @@ void save()
 // A function to be called in other functions to exit program
 void exit_program ()
 {
-    printf("Exiting program.\n");
-    exit(0);
+    char choice[5];
+    do
+    {
+        printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
+        scanf("%s",choice);
+        getchar();
+        if (strcmp(choice, "1") == 0)
+        {
+            printf("Exiting program.\n");
+            exit(0);
+        }
+        else if (strcmp(choice, "2") == 0)
+        {
+            menu();
+            break;
+        }
+        else ("Sorry I don't understand your choice please enter a valid choice: \n");
+    }
+    while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
+
 }
 
 void menu()
 {
-    int choice;
-    do
+    char choice[5];
+    printf("\nWelcome! Please choose what you want to do\n");
+    printf("1- ADD\n");
+    printf("2- DELETE\n");
+    printf("3- MODIFY\n");
+    printf("4- SEARCH\n");
+    printf("5- ADVANCED SEARCH\n");
+    printf("6- WITHDRAW\n");
+    printf("7- DEPOSIT\n");
+    printf("8- TRANSFER\n");
+    printf("9- REPORT\n");
+    printf("10- PRINT\n");
+    printf("11- QUIT\n");
+    printf("Enter the number of your choice: ");
+    scanf("%s", &choice);
+    getchar();
+    // Perform the selected action
+    while (1)
     {
-        printf("\nWelcome! Please choose what you want to do\n");
-        printf("1- ADD\n");
-        printf("2- DELETE\n");
-        printf("3- MODIFY\n");
-        printf("4- SEARCH\n");
-        printf("5- ADVANCED SEARCH\n");
-        printf("6- WITHDRAW\n");
-        printf("7- DEPOSIT\n");
-        printf("8- TRANSFER\n");
-        printf("9- REPORT\n");
-        printf("10- PRINT\n");
-        printf("11- QUIT\n");
-        printf("Enter the number of your choice: ");
-        scanf("%d", &choice);
-        getchar();
-        // Perform the selected action
-        switch (choice)
+        if(strcmp(choice,"1")==0)
         {
-        case 1:
             add();
-            break;
-        case 2:
-            //deleteAccount(accounts, &numAccounts);
-            break;
-        case 3:
-            //modifyAccount(accounts, numAccounts);
-            break;
-        case 4:
+        }
+        else if(strcmp(choice,"2")==0)
+        {
+            deleteAccount(acc, &NumberOfAccounts);
+        }
+        else if(strcmp(choice,"3")==0)
+        {
+            modifyAccount(acc, NumberOfAccounts);
+        }
+        else if(strcmp(choice,"4")==0)
 
         {
             char numsearch[11]; //a string just to scan account number
-            printf("Enter account number :\n");
-            scanf("%s",numsearch);
-            Accounts store;
-            if (querysearch(numsearch,&store))
-            {
-                printf("Account found  ! Do you want to print account datails ?\n1- YES \n2- NO\n");
-                int yesOrNo; //variable to help to choose
-                scanf("%d",&yesOrNo);
-                if(yesOrNo==1) print_accounts(store);
-            }
-            else
-                printf("Account is not found!\n");
             do
             {
-                printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
-                char choice[5];
-                scanf("%s",choice);
-                getchar();
-                if (strcmp(choice, "1") == 0)
-                    exit_program();
-                else if (strcmp(choice, "2") == 0)
+                printf("Enter account number :\n");
+                scanf("%s",numsearch);
+                Accounts store;
+                if (querysearch(numsearch,&store))
                 {
-                    menu();
+
+                    do
+                    {
+                        printf("Account found  ! Do you want to print account datails ?\n1- YES \n2- NO\n");
+                        char yesOrNo[5]; //variable to help to choose
+                        scanf("%s",yesOrNo);
+                        if(strcmp(yesOrNo,"1")==0)
+                        {
+                            print_accounts(store);
+                            exit_program();
+                            break;
+                        }
+                        else if(strcmp(yesOrNo,"2")==0) exit_program();
+                        else printf("Your entry is not valid!\n");
+                    }
+                    while(1);
+                }
+                else
+                {
+                    printf("Account is not found!\n");
+                    exit_program();
                     break;
                 }
-                else ("Sorry I don't understand your choice please enter a valid choice: \n");
             }
-            while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
+            while(check_numbers(numsearch,10)==0);
         }
-        case 11:
-            exit_program();
-        default:
+        else if(strcmp(choice,"5")==0)
+        {
+            /*char keyword[50];
+            printf("Enter search keyword :\n");
+            scanf("%s",keyword);
+            getchar();
+            advancedSearch(&keyword);
+            exit_program();*/
+        }
+        else if(strcmp(choice,"11")==0)
+        {
+            printf("Exiting program.");
+            exit(0);
+        }
+        else
             printf("Invalid choice. Please enter a valid choice.\n");
-            menu();
-        }
-
+        menu();
     }
-    while (choice!= 4);
+
 }
 
 int main()
