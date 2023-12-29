@@ -203,17 +203,21 @@ void modifyAccount(Accounts arraccounts[], int numofaccounts)
     char numaccountmod[11];
     int found=0,i;
 
-    printf("Enter account number to modify:");
-    scanf("%s",numaccountmod);
-
-    for (i=0; i<numofaccounts; ++i)
+    do
     {
-        if (strcmp(arraccounts[i].accountnum,numaccountmod)==0)
+        printf("Enter account number to modify:");
+        scanf("%s",numaccountmod);
+
+        for (i=0; i<numofaccounts; ++i)
         {
-            found=1;
-            break;
+            if (strcmp(arraccounts[i].accountnum,numaccountmod)==0)
+            {
+                found=1;
+                break;
+            }
         }
     }
+    while (!check_numbers(numaccountmod,10));
     if(found)
     {
         char field[5];
@@ -283,38 +287,42 @@ void deleteAccount(Accounts arraccounts[], int* numofaccounts)
     char numaccountdel[20];
     int found = 0, i, j;
 
-    printf("Enter account number to delete: ");
-    scanf("%s", numaccountdel);
-
-    for (i = 0; i < *numofaccounts; i++)
+    do
     {
-        if (strcmp(arraccounts[i].accountnum, numaccountdel)==0)
-        {
-            found = 1;
-            break;
-        }
-    }
+        printf("Enter account number to delete: ");
+        scanf("%s", numaccountdel);
 
-    if (found)
-    {
-        if (arraccounts[i].balance==0.0)
+        for (i = 0; i < *numofaccounts; i++)
         {
-            for (j=i; j <*numofaccounts-1; j++)
+            if (strcmp(arraccounts[i].accountnum, numaccountdel)==0)
             {
-                arraccounts[j]=arraccounts[j + 1];
+                found = 1;
+                break;
             }
-            (*numofaccounts)--;
-            printf("Account deleted successfully.\n");
+        }
+
+        if (found)
+        {
+            if (arraccounts[i].balance==0.0)
+            {
+                for (j=i; j <*numofaccounts-1; j++)
+                {
+                    arraccounts[j]=arraccounts[j + 1];
+                }
+                (*numofaccounts)--;
+                printf("Account deleted successfully.\n");
+            }
+            else
+            {
+                printf("Cannot delete accounts with non-zero balance.\n");
+            }
         }
         else
         {
-            printf("Cannot delete accounts with non-zero balance.\n");
+            printf("Account does not exist or written wrong please try again.\n");
         }
     }
-    else
-    {
-        printf("Account does not exist.\n");
-    }
+    while (!check_numbers(numaccountdel,10));
 
     save();
 }
@@ -367,6 +375,94 @@ void add() //A function to add new acount
     //prints the new account in the array
     printf("Account added successfully.\n"); //confirmation of the process success
     save(); //to check for saving
+}
+void name_bubbleSort()
+{
+    int i, j;
+    Accounts temp;
+
+    for (i = 0; i < NumberOfAccounts; i++)
+    {
+        for (j = 0; j < NumberOfAccounts-i-1; j++)
+        {
+            if (strcmp(acc[j].name, acc[j + 1].name) > 0)
+            {
+                // Swap accounts
+                temp = acc[j];
+                acc[j] = acc[j + 1];
+                acc[j + 1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < NumberOfAccounts; i++)
+    {
+        print_accounts( acc[i]);
+    }
+
+}
+void date_bubbleSort()
+{
+    int i, j;
+    Accounts temp;
+
+    for (i = 0; i < NumberOfAccounts; i++)
+    {
+        for (j = 0; j < NumberOfAccounts-i-1; j++)
+        {
+            if (strcmp(acc[j].dateOpened.year,acc[j + 1].dateOpened.year)==1)
+            {
+                // Swap accounts
+                temp = acc[j];
+                acc[j] = acc[j + 1];
+                acc[j + 1] = temp;
+            }
+            else if(strcmp(acc[j].dateOpened.year,acc[j + 1].dateOpened.year)==0)
+            {
+                if(strcmp(acc[j].dateOpened.month,acc[j + 1].dateOpened.month)==1)
+                {
+                    temp = acc[j];
+                    acc[j] = acc[j + 1];
+                    acc[j + 1] = temp;
+                }
+                else if(strcmp(acc[j].dateOpened.month,acc[j + 1].dateOpened.month)==0)
+                {
+                    if(strcmp(acc[j].dateOpened.day,acc[j + 1].dateOpened.day)==1)
+                    {
+                        temp = acc[j];
+                        acc[j] = acc[j + 1];
+                        acc[j + 1] = temp;
+                    }
+                }
+            }
+        }
+    }
+    for (int k = 0; k < NumberOfAccounts; k++)
+    {
+        print_accounts( acc[k]);
+    }
+}
+void balance_bubbleSort()
+{
+    int i, j;
+    Accounts temp;
+
+    for (i = 0; i <NumberOfAccounts; i++)
+    {
+        for (j = 0; j < NumberOfAccounts-i-1; j++)
+        {
+            if (acc[j].balance > acc[j + 1].balance)
+            {
+                // Swap accounts
+                temp = acc[j];
+                acc[j] = acc[j + 1];
+                acc[j + 1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < NumberOfAccounts; i++)
+    {
+        print_accounts( acc[i]);
+    }
 }
 void save()
 {
@@ -515,6 +611,45 @@ void menu()
             getchar();
             advancedSearch(&keyword);
             exit_program();*/
+        }
+        else if(strcmp(choice,"10")==0)
+        {
+            char n[5];
+            do
+            {
+                printf("Do you want to print all data sorted by name or balance or date ? ");
+                printf("Enter number of sorting option: \n");
+                printf("1- for sorting by name\n");
+                printf("2- for sorting by date\n");
+                printf("3- for sorting by balance\n");
+                printf("4- not sorted\n");
+                gets(n);
+                if(strcmp(n,"1")==0)
+                {
+                    name_bubbleSort();
+                }
+                else if(strcmp(n,"2")==0)
+                {
+                    date_bubbleSort();
+                }
+                else if(strcmp(n,"3")==0)
+                {
+                    balance_bubbleSort();
+                }
+                else if(strcmp(n,"4")==0)
+                {
+                    for (int l=0 ; l<NumberOfAccounts ; l++)
+                    {
+                        print_accounts(acc[l]);
+                    }
+                }
+
+                else
+                {
+                    printf("Invalid choice! Please try again.\n");
+                }
+            }
+            while(!(strcmp(n,"1")==0||strcmp(n,"2")==0||strcmp(n,"3")==0||strcmp(n,"4")==0));
         }
         else if(strcmp(choice,"11")==0)
         {
