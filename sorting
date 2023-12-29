@@ -4,125 +4,192 @@
 #define maxrow 500
 #define maxcol 500
 
-typedef struct {
+typedef struct
+{
     char day[3];
     char month[3];
     char year[5];
 } date;
 
-typedef struct {
+typedef struct
+{
     char accountnum[11];
     char name[100];
     char mail[50];
-    char mobilenum[12];
     double balance;
+    char mobilenum[12];
     date dateOpened;
 } Accounts;
-void print_accounts(Accounts acc) {
+Accounts acc[200];
+int NumberOfAccounts =0;
+void print_accounts(Accounts acc)
+{
     printf("Account Number=%s\nName=%s\nEmail=%s\nBalance=%.2f\nMobile Number=%s\nDate Opened=%s/%s/%s\n",
            acc.mobilenum, acc.name, acc.mail, acc.balance, acc.mobilenum, acc.dateOpened.day,
            acc.dateOpened.month, acc.dateOpened.year);
 }
 
-void assign(char temp[], Accounts *acc) {
+void load(char temp[][maxcol], Accounts *account) //loading data and store it in the array structure acc
+{
     char *token = strtok(temp, ",");
-    strcpy(acc->accountnum, token);
+    strcpy(account->accountnum, token);
     token = strtok(NULL, ",");
-    strcpy(acc->name, token);
+    strcpy(account->name, token);
     token = strtok(NULL, ",");
-    strcpy(acc->mail, token);
+    strcpy(account->mail, token);
     token = strtok(NULL, ",");
-    sscanf(token, "%lf", &acc->balance);
+    sscanf(token, "%lf", &account->balance);
     token = strtok(NULL, ",");
-    strcpy(acc->mobilenum, token);
+    strcpy(account->mobilenum, token);
     token = strtok(NULL, "/");
-    strcpy(acc->dateOpened.day, token);
+    strcpy(account->dateOpened.day, token);
     token = strtok(NULL, "/");
-    strcpy(acc->dateOpened.month, token);
+    strcpy(account->dateOpened.month, token);
     token = strtok(NULL, "/");
-    strcpy(acc->dateOpened.year, token);
+    strcpy(account->dateOpened.year, token);
 }
-void name_bubbleSort(Accounts acc[], int count) {
+void name_bubbleSort()
+{
     int i, j;
     Accounts temp;
 
-    for (i = 0; i < count - 1; i++) {
-        for (j = 0; j < count - i - 1; j++) {
-            if (strcmp(acc[j].name, acc[j + 1].name) > 0) {
-                // Swap accounts
-                temp = acc[j];
-                acc[j] = acc[j + 1];
-                acc[j + 1] = temp;
-            }
-        }
-    }
-}
-void balance_bubbleSort(Accounts acc[], int count) {
-    int i, j;
-    Accounts temp;
-
-    for (i = 0; i < count - 1; i++) {
-        for (j = 0; j < count - i - 1; j++) {
-            if (acc[j].balance > acc[j + 1].balance) {
-                // Swap accounts
-                temp = acc[j];
-                acc[j] = acc[j + 1];
-                acc[j + 1] = temp;
-            }
-        }
-    }
-}
-
-int main() {
-    FILE *file;
-    char temp[maxrow][maxcol];
-    int count = 0;
-    Accounts acc[maxrow];
-
-    // Open the file
-    file = fopen("C:\\Users\\Yassmin\\accounts.txt", "r+");
-    if (file == NULL) {
-        printf("Failed to open the file.\n");
-        return 1;
-    }
-
-    // Read names from the file
-    while (fgets(temp[count], maxcol, file) != NULL) {
-        
-        assign(temp[count], &acc[count]);
-        count++;
-    }
-    char namess[200];
-    int i=0;
-    while(i<=count)
-	{
-	    namess[i]=acc->name[i];
-        i++;
-    }
-
-    int n;
-    printf("do you want sorting be done based on name or balance or date ? ");
-    printf("enter sorting option: \n");
-    printf("1 for sorting by name\n");
-    printf("2 for sorting by date\n");
-    printf("3 for sorting by balance\n");
-    scanf("%d",&n);
-
-    switch(n)
+    for (i = 0; i < NumberOfAccounts; i++)
     {
-      case 1:name_bubbleSort(acc,i);
-      case 3:balance_bubbleSort(acc,i);
+        for (j = 0; j < NumberOfAccounts-i-1; j++)
+        {
+            if (strcmp(acc[j].name, acc[j + 1].name) > 0)
+            {
+                // Swap accounts
+                temp = acc[j];
+                acc[j] = acc[j + 1];
+                acc[j + 1] = temp;
+            }
+        }
     }
-
-    
-    
-    for (int i = 0; i < count; i++) {
+    for (int i = 0; i < NumberOfAccounts; i++)
+    {
         print_accounts( acc[i]);
     }
 
-    
-    fclose(file);
+}
+void date_bubbleSort()
+{
+    int i, j;
+    Accounts temp;
 
+    for (i = 0; i < NumberOfAccounts; i++)
+    {
+        for (j = 0; j < NumberOfAccounts-i-1; j++)
+        {
+            if (strcmp(acc[j].dateOpened.year ,acc[j + 1].dateOpened.year)==1)
+            {
+                // Swap accounts
+                temp = acc[j];
+                acc[j] = acc[j + 1];
+                acc[j + 1] = temp;
+            }
+            else if(strcmp(acc[j].dateOpened.year ,acc[j + 1].dateOpened.year)==0)
+            {
+                if(strcmp(acc[j].dateOpened.month ,acc[j + 1].dateOpened.month)==1)
+                {
+                    temp = acc[j];
+                    acc[j] = acc[j + 1];
+                    acc[j + 1] = temp;
+                }
+                else if(strcmp(acc[j].dateOpened.month ,acc[j + 1].dateOpened.month)==0)
+                {
+                    if(strcmp(acc[j].dateOpened.day ,acc[j + 1].dateOpened.day)==1)
+                    {
+                        temp = acc[j];
+                        acc[j] = acc[j + 1];
+                        acc[j + 1] = temp;
+                    }
+                }
+            }
+        }
+    }
+    for (int k = 0; k < NumberOfAccounts; k++)
+    {
+        print_accounts( acc[k]);
+    }
+}
+void balance_bubbleSort()
+{
+    int i, j;
+    Accounts temp;
 
+    for (i = 0; i <NumberOfAccounts; i++)
+    {
+        for (j = 0; j < NumberOfAccounts-i-1; j++)
+        {
+            if (acc[j].balance > acc[j + 1].balance)
+            {
+                // Swap accounts
+                temp = acc[j];
+                acc[j] = acc[j + 1];
+                acc[j + 1] = temp;
+            }
+        }
+    }
+    for (int i = 0; i < NumberOfAccounts; i++)
+    {
+        print_accounts( acc[i]);
+    }
+}
+
+int main()
+{
+    char temp[maxrow][maxcol];  //temporary array to avoid editing in the file and\or the acc array
+    int i=0;
+    FILE *ptr = fopen("accounts.txt", "r");
+
+    if (!ptr) //handling if the file is not found
+    {
+        printf("File can't be reached!");
+        return 1;
+    }
+    else
+    {
+        while (fgets(temp[i], maxcol, ptr)) //reads each line and load it separately
+        {
+            load(temp[i], &acc[i]);
+            NumberOfAccounts++;
+            i++;
+        }
+        printf("Data has been successfully uploaded to the system.\nNumber of accounts =%d\n",i+1);
+        //indicating to success and shows the user number of accounts
+    }
+
+    fclose(ptr);
+
+    char n[5];
+
+    do
+    {
+        printf("do you want sorting be done based on name or balance or date ? ");
+        printf("enter sorting option: \n");
+        printf("1 for sorting by name\n");
+        printf("2 for sorting by date\n");
+        printf("3 for sorting by balance\n");
+        gets(n);
+        if(strcmp(n,"1")==0)
+        {
+            name_bubbleSort();
+        }
+        else if(strcmp(n,"2")==0)
+        {
+            date_bubbleSort();
+        }
+        else if(strcmp(n,"3")==0)
+        {
+            balance_bubbleSort();
+        }
+
+        else
+        {
+            printf("Invalid choice! Please try again.\n");
+        }
+    }
+    while(!(strcmp(n,"1")==0||strcmp(n,"2")==0||strcmp(n,"3")==0));
     return 0;
 }
