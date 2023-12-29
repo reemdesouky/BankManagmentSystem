@@ -1,9 +1,16 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include<time.h>
+#include <ctype.h>
 #define maxrow 500
 #define maxcol 500
+#define MAX_TRANSACTIONS 5
+#define MAX_TRANSACTION_LINE_LENGTH 100
+typedef struct
+{
+    char transactionDetails[MAX_TRANSACTION_LINE_LENGTH];
+} Transaction;
+
 typedef struct
 {
     char username[50];
@@ -26,8 +33,9 @@ typedef struct
     double balance;
     date dateOpened;
 } Accounts;
-Accounts acc[200];
+Accounts acc[200]; //to store accounts // size are extendable
 int NumberOfAccounts =0;
+Transaction transactions[MAX_TRANSACTIONS]; //to load existing transactions into an array
 int login(char *username, char *password) // A function to check whether the user is correct or not
 {
     FILE *file = fopen("users.txt", "r");
@@ -173,31 +181,166 @@ int querysearch(char *accountNumber, Accounts *found)
     }
     return 0;  // Account not found
 }
-/*void advancedSearch(char *keyword) {
-    FILE *file = fopen("accounts.txt", "r");
-    if (file == NULL) {
-        printf("ERROR.\n");
-        return;
-    }
-
-    Accounts stored;
-
+void advancedSearch(char *keyword) {
     printf("\n");
     printf("Search results:\n");
-
-    while (fscanf(file, " %19[^,], %49[^,], %49[^,], %f, %14[^,], %19[^\n]",
-                  stored.accountnum, stored.name, stored.mail,
-                  &stored.balance, stored.mobilenum, stored.dateOpened) == 6) {
-
-        if (strstr(stored.name, keyword) != NULL) {
-            print_accounts(stored);  //question of how mechanism
-        }
+    int k;
+    char lowercasekey[50];
+    for (k = 0; keyword[k] != '\0'; ++k) {
+        lowercasekey[k] = tolower(keyword[k]);
     }
+    lowercasekey[k] = '\0';  //add null at the end
 
-    fclose(file);
+    int i = 0;
+    int count=0;
+    while (i < NumberOfAccounts) {
+        char lowercaseName[50];
+        int j = 0;
+        while (acc[i].name[j] != '\0') {
+            lowercaseName[j] = tolower(acc[i].name[j]); //devide the name into letters //array of chars
+            ++j;
+        }
+        lowercaseName[j] = '\0';  //add null at the end
+
+        if (strstr(lowercaseName, lowercasekey) != NULL) {
+            print_accounts(acc[i]);  // strstr finds the first occurrence of a string within another string
+            count++;
+        }
+        ++i;
+    }
+    if(!count) printf("No search results.\n");
     exit_program();
 }
-*/
+
+int accountsearch(char *accountNumber,int *found)
+{
+    // Find the account with the given account number
+    //different from querysearch that this function stores the index in order to modify the balance
+    for(int i=0; i<NumberOfAccounts; i++)
+    {
+        if (strcmp(acc[i].accountnum, accountNumber) == 0)
+        {
+            *found=i; //saving the index
+            return 1;  // Account found
+        }
+    }
+    return 0;  // Account not found
+}
+
+void deposit(char *accountNumber,char amount[])
+{
+    int stored;
+    double depositamount;
+
+    if (accountsearch(accountNumber, &stored) == 1)
+    {
+        sscanf(amount,"%lf",&depositamount);
+        //to transform string into double
+        if (depositamount >=0 && depositamount<=10000)
+        {
+            acc[stored].balance += depositamount;
+            if (saveTransactions())
+            {
+                printf("Deposite is successful\n");
+                Transaction newtrans[MAX_TRANSACTION_LINE_LENGTH];
+                sprintf(newtrans, "Deposit + %.2lf\n", depositamount); //to convert double into string
+                addTransaction(newtrans,&acc[stored].accountnum); //to add transaction to file
+            }
+        }
+        else
+        {
+            printf("The amount you entered can't be deposited !\nNotice that the maximum amount is 10000.\n");
+            menu();
+        }
+    }
+    else
+    {
+        printf("Account not found.\n");
+    }
+
+}
+
+void withdraw(char*accountNumber,char amount[])
+{
+    int stored;
+    double withdrawamount;
+
+    if (accountsearch(accountNumber, &stored) == 1)
+    {
+        sscanf(amount,"%lf",&withdrawamount); //to transform string into double
+        if (withdrawamount >=0 && withdrawamount<=10000)
+        {
+            if (acc[stored].balance >=withdrawamount)
+            {
+                acc[stored].balance -= withdrawamount;
+
+                if (saveTransactions())
+                {
+                    printf("Withdraw is successful!");
+                    Transaction newtrans[MAX_TRANSACTION_LINE_LENGTH];
+                    sprintf(newtrans, "Withdraw - %.2lf\n", withdrawamount); //to convert double into string
+                    addTransaction(newtrans,&acc[stored].accountnum); //to add transaction to file
+                }
+            }
+            else
+            {
+                printf("Insufficient balance for withdrawal.\n");
+            }
+        }
+        else
+        {
+            printf("The amount you entered can't be withdraw!\nNotice that the maximum amount is 10000.\n");
+            menu();
+        }
+    }
+    else
+    {
+        printf("Account not found.\n");
+    }
+
+}
+
+void transfer(char *fromAccountNumber, char *toAccountNumber, char amount[])
+{
+    int fromAccount, toAccount;
+    double transferamount;
+
+    //searches for the accounts entered by the user and stores its information in fromAccount
+    if (accountsearch(fromAccountNumber, &fromAccount) == 1 &&
+            accountsearch(toAccountNumber, &toAccount) == 1 && strcmp(fromAccountNumber,toAccountNumber)!=0)
+    {
+        sscanf(amount,"%lf",&transferamount); //to transform string into double
+
+        if (acc[fromAccount].balance >= transferamount)
+        {
+            acc[fromAccount].balance -= transferamount;
+            acc[toAccount].balance += transferamount;
+
+            if( saveTransactions())
+            {
+                printf("Transfer completed successfully\n");
+                printf("From Account: %s\n",acc[fromAccount].accountnum);
+                printf("To Account: %s\n",acc[toAccount].accountnum);
+                Transaction newtrans1[MAX_TRANSACTION_LINE_LENGTH];
+                sprintf(newtrans1, "transfer - %.2lf\n", transferamount); //to convert double into string
+                addTransaction(newtrans1,&acc[fromAccount].accountnum); //to add transaction to file to the account transfered from
+                Transaction newtrans2[MAX_TRANSACTION_LINE_LENGTH];
+                sprintf(newtrans2, "transfer + %.2lf\n", transferamount); //to convert double into string
+                addTransaction(newtrans2,&acc[toAccount].accountnum); //to add transaction to file to the account transfered to
+            }
+        }
+        else
+        {
+            printf("Insufficient balance for transfer.\n");
+        }
+    }
+    else
+    {
+        printf("One or both accounts not found.\n");
+    }
+
+
+}
 void modifyAccount(Accounts arraccounts[], int numofaccounts)
 {
     char numaccountmod[11];
@@ -464,7 +607,76 @@ void balance_bubbleSort()
         print_accounts( acc[i]);
     }
 }
-void save()
+void addTransaction(Transaction newTransaction, char accountnum[])
+{
+    char filename[15];  //10 for the acc num +4 for .txt +1 for null char
+    sprintf(filename, "%s.txt",accountnum);
+    FILE *file = fopen(filename, "a+");
+
+    int transactionCount = 0;
+
+    while (fgets(transactions[transactionCount].transactionDetails, sizeof(transactions[transactionCount].transactionDetails), file) != NULL)
+        //count the number of transactions in the file by counting the lines
+    {
+        transactionCount++;
+    }
+
+    // Append the new transaction to the file
+    fprintf(file, "%s", newTransaction);
+
+    fclose(file);
+    if (transactionCount < MAX_TRANSACTIONS)   //update the array of transactions, keeping only the last 5
+    {
+        strcpy(transactions[transactionCount].transactionDetails, newTransaction.transactionDetails);
+    }
+    else
+    {
+        FILE *file = fopen(filename, "w");
+
+        for (int j = 0; j < MAX_TRANSACTIONS - 1; j++)
+        {
+            strcpy(transactions[j].transactionDetails, transactions[j + 1].transactionDetails); //Shift existing transactions to keep last 5 only
+            fprintf(file, "%s", transactions[j].transactionDetails); //over write the file to keep only the last 5
+        }
+
+        strcpy(transactions[MAX_TRANSACTIONS - 1].transactionDetails, newTransaction.transactionDetails);//add the new transaction to the last position
+        fprintf(file, "%s", transactions[MAX_TRANSACTIONS - 1].transactionDetails);
+        fclose(file);
+    }
+
+
+}
+void report()
+{
+    char accountnum[11];
+    printf("Enter account number to print transaction of: \n");
+    gets(accountnum);
+    char filename[15];  //10 for the acc num +4 for .txt +1 for null char
+    sprintf(filename, "%s.txt",accountnum);
+    FILE *file = fopen(filename, "r");
+
+    if (!file)
+    {
+        printf("Error opening transactions file.\n");
+        return;
+    }
+
+    int i = 0;
+
+    while (fgets(transactions[i].transactionDetails, sizeof(transactions[i].transactionDetails), file) != NULL)
+    {
+        i++; //counting lines //lines represent number of transactions
+    }
+
+    printf("\nLast %d transactions:\n", MAX_TRANSACTIONS); //print last 5 transactions
+    for (int j = 0; j < MAX_TRANSACTIONS; j++)
+    {
+        printf("%s", transactions[j].transactionDetails);
+    }
+
+    fclose(file);
+}
+int saveTransactions() //to save without exit in order to execute addTransation function
 {
     printf("Do you want to save ? Enter the number of your choice\n1- YES\n2- NO\n");
     char choice[5];
@@ -487,12 +699,48 @@ void save()
 
             }
             printf("Changes has been successfully saved.\n");
-            do
-            {
-                exit_program();
-            }
-            while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
             fclose(ptr);
+            return 1;
+
+        }
+        else if (strcmp(choice, "2") == 0)
+        {
+            return 0;
+
+        }
+
+        else
+        {
+            printf("Sorry I don't understand your choice please enter a valid choice: \n");
+        }
+    }
+    while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
+}
+void save()
+{
+    char choice[5];
+    do
+    {
+        printf("Do you want to save ? Enter the number of your choice\n1- YES\n2- NO\n");
+        gets(choice);
+        if (strcmp(choice, "1") == 0)
+        {
+            FILE *ptr=fopen("accounts.txt","w");
+            for (int i=0 ; i<NumberOfAccounts; i++)
+            {
+                fprintf(ptr,"%s,",acc[i].accountnum);
+                fprintf(ptr,"%s,",acc[i].name);
+                fprintf(ptr,"%s,",acc[i].mail);
+                fprintf(ptr,"%.2lf,",acc[i].balance);
+                fprintf(ptr,"%s,",acc[i].mobilenum);
+                fprintf(ptr,"%s/",acc[i].dateOpened.day);
+                fprintf(ptr,"%s/",acc[i].dateOpened.month);
+                fprintf(ptr,"%s",acc[i].dateOpened.year);
+
+            }
+            printf("Changes has been successfully saved.\n");
+            fclose(ptr);
+            exit_program();
 
         }
         else if (strcmp(choice, "2") == 0)
@@ -503,10 +751,10 @@ void save()
 
         else
         {
-            ("Sorry I don't understand your choice please enter a valid choice: \n");
+            printf("Please enter a valid choice: \n");
         }
     }
-    while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
+    while((strcmp(choice, "1") != 0)&&(strcmp(choice, "2") != 0)&&!check_numbers(choice,"1"));
 }
 // A function to be called in other functions to exit program
 void exit_program ()
@@ -531,6 +779,18 @@ void exit_program ()
     }
     while((strcmp(choice, "1") != 0)||(strcmp(choice, "2") != 0));
 
+}
+int checkbalance(char amount[])
+{
+    int flag=1;
+    for (int i=0; amount[i]!='\0' ; i++)
+    {
+        if(!(amount[i]>=48&&amount[i]<=57))
+            flag=0;
+    }
+    if(!flag)
+        printf("Enter valid amount.\n");
+    return flag;
 }
 
 void menu()
@@ -574,43 +834,108 @@ void menu()
             {
                 printf("Enter account number :\n");
                 scanf("%s",numsearch);
-                Accounts store;
-                if (querysearch(numsearch,&store))
-                {
-
-                    do
-                    {
-                        printf("Account found  ! Do you want to print account datails ?\n1- YES \n2- NO\n");
-                        char yesOrNo[5]; //variable to help to choose
-                        scanf("%s",yesOrNo);
-                        if(strcmp(yesOrNo,"1")==0)
-                        {
-                            print_accounts(store);
-                            exit_program();
-                            break;
-                        }
-                        else if(strcmp(yesOrNo,"2")==0) exit_program();
-                        else printf("Your entry is not valid!\n");
-                    }
-                    while(1);
-                }
-                else
-                {
-                    printf("Account is not found!\n");
-                    exit_program();
-                    break;
-                }
             }
             while(check_numbers(numsearch,10)==0);
+            Accounts store;
+            if (querysearch(numsearch,&store))
+            {
+
+                do
+                {
+                    printf("Account found  ! Do you want to print account datails ?\n1- YES \n2- NO\n");
+                    char yesOrNo[5]; //variable to help to choose
+                    scanf("%s",yesOrNo);
+                    if(strcmp(yesOrNo,"1")==0)
+                    {
+                        print_accounts(store);
+                        exit_program();
+                        break;
+                    }
+                    else if(strcmp(yesOrNo,"2")==0) exit_program();
+                    else printf("Your entry is not valid!\n");
+                }
+                while(1);
+            }
+            else
+            {
+                printf("Account is not found !\n");
+                exit_program();
+            }
         }
         else if(strcmp(choice,"5")==0)
         {
-            /*char keyword[50];
+            char keyword[50];
             printf("Enter search keyword :\n");
             scanf("%s",keyword);
             getchar();
             advancedSearch(&keyword);
-            exit_program();*/
+            exit_program();
+        }
+        else if(strcmp(choice,"6")==0)
+        {
+            char accountnumber[11];
+            char amount[10];
+            do
+            {
+                printf("Enter account number: \n");
+                gets(accountnumber);
+            }
+            while (!check_numbers(accountnumber,10));
+            do
+            {
+                printf("Enter withdraw amount: \n");
+                gets(amount);
+            }
+            while (!checkbalance(amount));
+            withdraw(&accountnumber, amount);
+        }
+        else if(strcmp(choice,"7")==0)
+        {
+            char accountnumber[11];
+            char amount[10];
+            do
+            {
+                printf("Enter account number: ");
+                gets(accountnumber);
+            }
+            while (!check_numbers(accountnumber,10));
+            do
+            {
+                printf("Enter deposit amount: ");
+                gets(amount);
+            }
+            while (!checkbalance(amount));
+            deposit(&accountnumber, amount);
+        }
+        else if(strcmp(choice,"8")==0)
+        {
+            char fromAccount[11];
+            char toAccount[11];
+            char amount[10];
+            do
+            {
+                printf("Enter the account number to transfer from: ");
+                gets(fromAccount);
+            }
+            while(!check_numbers(fromAccount,10));
+            do
+            {
+                printf("Enter the account number to transfer to: ");
+                gets(toAccount);
+            }
+            while(!check_numbers(toAccount,10));
+            do
+            {
+                printf("Enter the amount to transfer: ");
+                gets(amount);
+            }
+            while (!checkbalance(amount));
+
+            transfer(&fromAccount,& toAccount, amount);
+        }
+        else if(strcmp(choice,"9")==0)
+        {
+            report();
         }
         else if(strcmp(choice,"10")==0)
         {
@@ -667,46 +992,58 @@ int main()
 {
     char entered_username[50];
     char entered_password[50];
-    printf("Bank Management System\n");
+    char choice[5];
     do
     {
-        printf("Enter username:");
-        scanf("%s", entered_username);
-        printf("Enter password:");
-        scanf("%s", entered_password);
-        if (login(entered_username, entered_password))
+        printf("Bank Management System\n1- LOGIN \n2- QUIT\nPlease enter the number of your choice.\n");
+        gets(choice);
+        if(strcmp(choice,"1")==0)
         {
-            printf("Data is uploading\n");
-            break;
-        }
-        else
-        {
-            printf("Wrong, try again\n");
-        }
-    }
-    while (1); // Loop until valid login
-    char temp[maxrow][maxcol];  //temporary array to avoid editing in the file and\or the acc array
-    int i=0;
-    FILE *ptr = fopen("accounts.txt", "r");
+            do
+            {
+                printf("Enter username:");
+                scanf("%s", entered_username);
+                printf("Enter password:");
+                scanf("%s", entered_password);
+                if (login(entered_username, entered_password))
+                {
+                    printf("Data is uploading\n");
+                    break;
+                }
+                else
+                {
+                    printf("Wrong, try again\n");
+                }
+            }
+            while (1); // Loop until valid login
+            char temp[maxrow][maxcol];  //temporary array to avoid editing in the file and\or the acc array
+            int i=0;
+            FILE *ptr = fopen("accounts.txt", "r");
 
-    if (!ptr) //handling if the file is not found
-    {
-        printf("File can't be reached!");
-        return 1;
-    }
-    else
-    {
-        while (fgets(temp[i], maxcol, ptr)) //reads each line and load it separately
-        {
-            load(temp[i], &acc[i]);
-            NumberOfAccounts++;
-            i++;
-        }
-        printf("Data has been successfully uploaded to the system.\nNumber of accounts =%d\n",i+1);
-        //indicating to success and shows the user number of accounts
-    }
+            if (!ptr) //handling if the file is not found
+            {
+                printf("File can't be reached!");
+                return 1;
+            }
+            else
+            {
+                while (fgets(temp[i], maxcol, ptr)) //reads each line and load it separately
+                {
+                    load(temp[i], &acc[i]);
+                    NumberOfAccounts++;
+                    i++;
+                }
+                printf("Data has been successfully uploaded to the system.\nNumber of accounts =%d\n",i+1);
+                //indicating to success and shows the user number of accounts
+            }
 
-    fclose(ptr);
-    menu();
+            fclose(ptr);
+            menu();
+        }
+        else if(strcmp(choice,"2")==0)
+            exit_program();
+        else printf("Sorry Your choice is invalid!");
+    }
+    while (strcmp(choice,"2")!=0||strcmp(choice,"1")!=0);
     return 0;
 }
