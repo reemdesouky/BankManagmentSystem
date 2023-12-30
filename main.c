@@ -730,7 +730,7 @@ void save()
                 fprintf(ptr,"%.2lf,",acc[i].balance);
                 fprintf(ptr,"%s,",acc[i].mobilenum);
                 fprintf(ptr,"%s-",acc[i].dateOpened.month);
-                fprintf(ptr,"%s",acc[i].dateOpened.year);
+                fprintf(ptr,"%s\n",acc[i].dateOpened.year);
 
             }
             printf("Changes has been successfully saved.\n");
