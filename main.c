@@ -19,7 +19,6 @@ typedef struct
 
 typedef struct
 {
-    char day[3];
     char month[3];
     char year[6];
 } date;
@@ -73,8 +72,8 @@ void print_accounts(Accounts acc) //A function to print one account details
     }
     else
     {
-        printf("Account Number=%s\nName=%s\nEmail=%s\nBalance=%.2f\nMobile Number=%s\nDate Opened=%s/%s/%s\n",
-               acc.accountnum, acc.name, acc.mail, acc.balance, acc.mobilenum, acc.dateOpened.day,
+        printf("Account Number=%s\nName=%s\nEmail=%s\nBalance=%.2f\nMobile Number=%s\nDate Opened=%s-%s\n",
+               acc.accountnum, acc.name, acc.mail, acc.balance, acc.mobilenum,
                acc.dateOpened.month, acc.dateOpened.year);
     }
 }
@@ -91,18 +90,16 @@ void load(char temp[][maxcol], Accounts *account) //loading data and store it in
     sscanf(token, "%lf", &account->balance);
     token = strtok(NULL, ",");
     strcpy(account->mobilenum, token);
-    token = strtok(NULL, "/");
-    strcpy(account->dateOpened.day, token);
-    token = strtok(NULL, "/");
+    token = strtok(NULL, "-");
     strcpy(account->dateOpened.month, token);
-    token = strtok(NULL, "/");
+    token = strtok(NULL, "\n");
     strcpy(account->dateOpened.year, token);
 }
 void todayDate(date *daydate) //function to get date of the day from the machine
 {
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
-    sprintf(daydate->day, "%0.2d", tm->tm_mday); //sprintf converts int to char value in a struct
+    //sprintf converts int to char value in a struct
     sprintf(daydate->month, "%0.2d", tm->tm_mon + 1);
     sprintf(daydate->year, "%0.4d", tm->tm_year + 1900);
     //values 1&1900 are added by nature in the function
@@ -181,28 +178,33 @@ int querysearch(char *accountNumber, Accounts *found)
     }
     return 0;  // Account not found
 }
-void advancedSearch(char *keyword) {
+void advancedSearch(char *keyword)
+{
     printf("\n");
     printf("Search results:\n");
     int k;
     char lowercasekey[50];
-    for (k = 0; keyword[k] != '\0'; ++k) {
+    for (k = 0; keyword[k] != '\0'; ++k)
+    {
         lowercasekey[k] = tolower(keyword[k]);
     }
     lowercasekey[k] = '\0';  //add null at the end
 
     int i = 0;
     int count=0;
-    while (i < NumberOfAccounts) {
+    while (i < NumberOfAccounts)
+    {
         char lowercaseName[50];
         int j = 0;
-        while (acc[i].name[j] != '\0') {
+        while (acc[i].name[j] != '\0')
+        {
             lowercaseName[j] = tolower(acc[i].name[j]); //devide the name into letters //array of chars
             ++j;
         }
         lowercaseName[j] = '\0';  //add null at the end
 
-        if (strstr(lowercaseName, lowercasekey) != NULL) {
+        if (strstr(lowercaseName, lowercasekey) != NULL)
+        {
             print_accounts(acc[i]);  // strstr finds the first occurrence of a string within another string
             count++;
         }
@@ -540,6 +542,7 @@ void name_bubbleSort()
     for (int i = 0; i < NumberOfAccounts; i++)
     {
         print_accounts( acc[i]);
+        printf("\n\n");
     }
 
 }
@@ -550,40 +553,33 @@ void date_bubbleSort()
 
     for (i = 0; i < NumberOfAccounts; i++)
     {
-        for (j = 0; j < NumberOfAccounts-i-1; j++)
+        for (j = 0; j < NumberOfAccounts - i - 1; j++)
         {
-            if (strcmp(acc[j].dateOpened.year,acc[j + 1].dateOpened.year)==1)
+            if (strcmp(acc[j].dateOpened.year, acc[j + 1].dateOpened.year) ==1)
             {
                 // Swap accounts
                 temp = acc[j];
                 acc[j] = acc[j + 1];
                 acc[j + 1] = temp;
             }
-            else if(strcmp(acc[j].dateOpened.year,acc[j + 1].dateOpened.year)==0)
+            else if (strcmp(acc[j].dateOpened.year, acc[j + 1].dateOpened.year) == 0)
             {
-                if(strcmp(acc[j].dateOpened.month,acc[j + 1].dateOpened.month)==1)
+                if (strcmp(acc[j].dateOpened.month, acc[j + 1].dateOpened.month) ==1)
                 {
                     temp = acc[j];
                     acc[j] = acc[j + 1];
                     acc[j + 1] = temp;
-                }
-                else if(strcmp(acc[j].dateOpened.month,acc[j + 1].dateOpened.month)==0)
-                {
-                    if(strcmp(acc[j].dateOpened.day,acc[j + 1].dateOpened.day)==1)
-                    {
-                        temp = acc[j];
-                        acc[j] = acc[j + 1];
-                        acc[j + 1] = temp;
-                    }
                 }
             }
         }
     }
     for (int k = 0; k < NumberOfAccounts; k++)
     {
-        print_accounts( acc[k]);
+        print_accounts(acc[k]);
+        printf("\n\n");
     }
 }
+
 void balance_bubbleSort()
 {
     int i, j;
@@ -605,6 +601,7 @@ void balance_bubbleSort()
     for (int i = 0; i < NumberOfAccounts; i++)
     {
         print_accounts( acc[i]);
+        printf("\n\n");
     }
 }
 void addTransaction(Transaction newTransaction, char accountnum[])
@@ -693,8 +690,7 @@ int saveTransactions() //to save without exit in order to execute addTransation 
                 fprintf(ptr,"%s,",acc[i].mail);
                 fprintf(ptr,"%.2lf,",acc[i].balance);
                 fprintf(ptr,"%s,",acc[i].mobilenum);
-                fprintf(ptr,"%s/",acc[i].dateOpened.day);
-                fprintf(ptr,"%s/",acc[i].dateOpened.month);
+                fprintf(ptr,"%s-",acc[i].dateOpened.month);
                 fprintf(ptr,"%s",acc[i].dateOpened.year);
 
             }
@@ -733,8 +729,7 @@ void save()
                 fprintf(ptr,"%s,",acc[i].mail);
                 fprintf(ptr,"%.2lf,",acc[i].balance);
                 fprintf(ptr,"%s,",acc[i].mobilenum);
-                fprintf(ptr,"%s/",acc[i].dateOpened.day);
-                fprintf(ptr,"%s/",acc[i].dateOpened.month);
+                fprintf(ptr,"%s-",acc[i].dateOpened.month);
                 fprintf(ptr,"%s",acc[i].dateOpened.year);
 
             }
