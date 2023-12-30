@@ -72,7 +72,7 @@ void print_accounts(Accounts acc) //A function to print one account details
     }
     else
     {
-        printf("Account Number=%s\nName=%s\nEmail=%s\nBalance=%.2f\nMobile Number=%s\nDate Opened=%s-%s\n",
+        printf("Account Number:%s\nName:%s\nEmail:%s\nBalance:%.2f\nMobile Number:%s\nDate Opened:%s-%s\n",
                acc.accountnum, acc.name, acc.mail, acc.balance, acc.mobilenum,
                acc.dateOpened.month, acc.dateOpened.year);
     }
@@ -785,10 +785,22 @@ void exit_program ()
 int checkbalance(char amount[])
 {
     int flag=1;
+    int pointCount=0;
     for (int i=0; amount[i]!='\0' ; i++)
     {
-        if(!(amount[i]>=48&&amount[i]<=57))
+        if(!(amount[i]>=48&&amount[i]<=57)&&amount[i]!=46) //the point for the double amount
+        {
             flag=0;
+        }
+        if (amount[i]=='.')
+        {
+            pointCount++;
+        }
+    }
+
+    if (pointCount> 1)
+    {
+        flag = 0;
     }
     if(!flag)
         printf("Enter valid amount.\n");
