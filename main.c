@@ -72,7 +72,7 @@ void print_accounts(Accounts acc) //A function to print one account details
     }
     else
     {
-        printf("Account Number:%s\nName:%s\nE-mail=%s\nBalanc:%.2f\nMobile Number:%s\nDate Opened:%s-%s\n",
+        printf("Account Number=%s\nName=%s\nEmail=%s\nBalance=%.2f\nMobile Number=%s\nDate Opened=%s-%s\n",
                acc.accountnum, acc.name, acc.mail, acc.balance, acc.mobilenum,
                acc.dateOpened.month, acc.dateOpened.year);
     }
@@ -128,36 +128,44 @@ int check_numbers(char number[],int j) // to check the whether the entered accou
     if (!flag) printf("Please enter %d digits number.",j);
     return flag;
 }
-int check_mail(char mail[]) // to check the whether the entered email are correct or not
+int check_mail(char mail[]) // to check whether the entered email is correct or not
 {
-    int flag=1;
-    int k=0,i=0;
-    char temp[10]="@gmail.com";
+    int flag = 1;
+    int k = 0, i = 0;
+    char temp1[10] = "@gmail.com";
+    char temp2[13] = "@outlook.com";
+    char temp3[10] = "@yahoo.com";
+    char temp4[12] = "@hotmail.com";
 
-    for (i; mail[i]!='@'; i++) //stops before @
+    for (i = 0; mail[i] != '@'; i++) // stops before @
     {
-        if (!((mail[i]>=97&&mail[i]<=122)||mail[i]=='.'||mail[i]=='_'||(mail[i]>=48&&mail[i]<=57)))
+        if (!((mail[i]>=97&&mail[i]<=122)||mail[i]=='.'||mail[i]=='_'||(mail[i]>= 48&&mail[i]<=57)))
         {
-            flag=0;
+            flag = 0;
         }
     }
 
-    if (mail[i]=='\0'||k==10)
+    if (mail[i] == '\0') // Check if '@' is not found or email is too long or too short
     {
-        flag=0; // Handle the case when '@' is not found or email is too long
+        flag = 0;
     }
 
-    for (; k<10&&mail[i]!='\0'; i++,k++) //checks for fixed format
+    // checks for fixed format (only check the domain part)
+    char* domain = mail + i; // points to the domain part of the email
+
+    while (k < 10 && domain[k] != '\0')
     {
-        if (mail[i]!=temp[k])
+        if (domain[k] != temp1[k] && domain[k] != temp2[k] && domain[k] != temp3[k] && domain[k] != temp4[k])
         {
-            flag=0;
+            flag = 0;
+            break;
         }
+        k++;
     }
 
     if (!flag)
     {
-        printf("Please enter email in the format of \"small alphabetic letters@gmail.com\"\n");
+        printf("Please enter email in the format of \"small alphabetic letters@domain.com\"\n");
     }
 
     return flag;
@@ -435,7 +443,7 @@ void deleteAccount(Accounts arraccounts[], int* numofaccounts)
     do
     {
         printf("Enter account number to delete: ");
-        scanf("%s", numaccountdel);
+        gets(numaccountdel);
 
         for (i = 0; i < *numofaccounts; i++)
         {
@@ -514,7 +522,6 @@ void add() //A function to add new acount
     todayDate(&newaccount.dateOpened); //to assign the day
     newaccount.balance=0; //account starts by 0.0 balance
     NumberOfAccounts++;
-    newaccount.dateOpened.year[strlen(newaccount.dateOpened.year)] = '\n';
 
     acc[NumberOfAccounts-1]=newaccount;
     //prints the new account in the array
@@ -691,7 +698,7 @@ int saveTransactions() //to save without exit in order to execute addTransation 
                 fprintf(ptr,"%.2lf,",acc[i].balance);
                 fprintf(ptr,"%s,",acc[i].mobilenum);
                 fprintf(ptr,"%s-",acc[i].dateOpened.month);
-                fprintf(ptr,"%s",acc[i].dateOpened.year);
+                fprintf(ptr,"%s\n",acc[i].dateOpened.year);
 
             }
             printf("Changes has been successfully saved.\n");
