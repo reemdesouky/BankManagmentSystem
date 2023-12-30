@@ -701,7 +701,7 @@ int saveTransactions() //to save without exit in order to execute addTransation 
                 fprintf(ptr,"%s\n",acc[i].dateOpened.year);
 
             }
-            printf("Changes has been successfully saved.\n");
+            printf("Changes have been successfully saved.\n");
             fclose(ptr);
             return 1;
 
