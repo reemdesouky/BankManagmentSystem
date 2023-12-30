@@ -72,7 +72,7 @@ void print_accounts(Accounts acc) //A function to print one account details
     }
     else
     {
-        printf("Account Number:%s\nName:%s\nEmail=%s\nBalanc:%.2f\nMobile Number:%s\nDate Opened:%s-%s\n",
+        printf("Account Number:%s\nName:%s\nE-mail=%s\nBalanc:%.2f\nMobile Number:%s\nDate Opened:%s-%s\n",
                acc.accountnum, acc.name, acc.mail, acc.balance, acc.mobilenum,
                acc.dateOpened.month, acc.dateOpened.year);
     }
