@@ -207,7 +207,7 @@ void advancedSearch(char *keyword)
         while (acc[i].name[j] != '\0')
         {
             lowercaseName[j] = tolower(acc[i].name[j]); //devide the name into letters //array of chars
-            ++j;
+            j++;
         }
         lowercaseName[j] = '\0';  //add null at the end
 
@@ -216,7 +216,7 @@ void advancedSearch(char *keyword)
             print_accounts(acc[i]);  // strstr finds the first occurrence of a string within another string
             count++;
         }
-        ++i;
+        i++;
     }
     if(!count) printf("No search results.\n");
     exit_program();
@@ -237,7 +237,7 @@ int accountsearch(char *accountNumber,int *found)
     return 0;  // Account not found
 }
 
-void deposit(char *accountNumber,char amount[])
+void deposit(char accountNumber[],char amount[])
 {
     int stored;
     double depositamount;
@@ -270,7 +270,7 @@ void deposit(char *accountNumber,char amount[])
 
 }
 
-void withdraw(char*accountNumber,char amount[])
+void withdraw(char accountNumber[],char amount[])
 {
     int stored;
     double withdrawamount;
@@ -310,7 +310,7 @@ void withdraw(char*accountNumber,char amount[])
 
 }
 
-void transfer(char *fromAccountNumber, char *toAccountNumber, char amount[])
+void transfer(char fromAccountNumber, char toAccountNumber, char amount[])
 {
     int fromAccount, toAccount;
     double transferamount;
@@ -661,7 +661,7 @@ void report()
 
     if (!file)
     {
-        printf("Error opening transactions file.\n");
+        printf("Error opening transactions file or no transaction found.\n");
         return;
     }
 
@@ -672,10 +672,10 @@ void report()
         i++; //counting lines //lines represent number of transactions
     }
 
-    printf("\nLast %d transactions:\n", MAX_TRANSACTIONS); //print last 5 transactions
-    for (int j = 0; j < MAX_TRANSACTIONS; j++)
+    printf("\nLast %d transactions:\n", i); //print last transactions
+    for (int j = 0; j < i; j++)
     {
-        printf("%s", transactions[j].transactionDetails);
+        printf("%s", transactions[i-j-1].transactionDetails);
     }
 
     fclose(file);
@@ -901,7 +901,7 @@ void menu()
                 gets(amount);
             }
             while (!checkbalance(amount));
-            withdraw(&accountnumber, amount);
+            withdraw(accountnumber, amount);  //pass accountnumber as a pointer to allow access all the data in that accountnumber
         }
         else if(strcmp(choice,"7")==0)
         {
@@ -919,7 +919,7 @@ void menu()
                 gets(amount);
             }
             while (!checkbalance(amount));
-            deposit(&accountnumber, amount);
+            deposit(accountnumber, amount);   //pass accountnumber as a pointer to allow access all the data in that accountnumber
         }
         else if(strcmp(choice,"8")==0)
         {
@@ -945,7 +945,7 @@ void menu()
             }
             while (!checkbalance(amount));
 
-            transfer(&fromAccount,& toAccount, amount);
+            transfer(fromAccount,toAccount, amount); //pass accountnumber as a pointer to allow access all the data in that accountnumber
         }
         else if(strcmp(choice,"9")==0)
         {
