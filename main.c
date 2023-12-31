@@ -359,7 +359,7 @@ void modifyAccount(Accounts arraccounts[], int numofaccounts)
     do
     {
         printf("Enter account number to modify:");
-        scanf("%s",numaccountmod);
+        gets(numaccountmod);
 
         for (i=0; i<numofaccounts; ++i)
         {
