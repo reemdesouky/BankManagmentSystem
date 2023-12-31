@@ -381,15 +381,13 @@ void modifyAccount(Accounts arraccounts[], int numofaccounts)
             printf("3-Mobile Number.\n");
             printf("4-Nothing.\n");
             printf("Please Enter the number of the field you want to modify:");
-            getchar();
-            scanf("%s",field);
+            gets(field);
             if (strcmp(field,"1")==0)
             {
                 do
                 {
                     printf("Enter your new name:");
-                    getchar();
-                    scanf("%[^\n]", arraccounts[i].name); //read until new line
+                    gets(arraccounts[i].name); //read until new line
                 }
                 while(!check_chars(arraccounts[i].name,strlen(arraccounts[i].name)));
 
@@ -399,8 +397,7 @@ void modifyAccount(Accounts arraccounts[], int numofaccounts)
                 do
                 {
                     printf("Enter your new email:");
-                    getchar();
-                    scanf("%[^\n]", arraccounts[i].mail);
+                    gets(arraccounts[i].mail);
                 }
                 while (!check_mail(arraccounts[i].mail));
 
@@ -410,8 +407,8 @@ void modifyAccount(Accounts arraccounts[], int numofaccounts)
                 do
                 {
                     printf("Enter mobile number:");
-                    getchar();
-                    scanf("%12s",arraccounts[i].mobilenum);
+                    gets(arraccounts[i].mobilenum);
+
                 }
                 while (!check_numbers(arraccounts[i].mobilenum, 11));
 
@@ -847,7 +844,7 @@ void menu()
             do
             {
                 printf("Enter account number :\n");
-                scanf("%s",numsearch);
+                gets(numsearch);
             }
             while(check_numbers(numsearch,10)==0);
             Accounts store;
@@ -858,7 +855,7 @@ void menu()
                 {
                     printf("Account found  ! Do you want to print account datails ?\n1- YES \n2- NO\n");
                     char yesOrNo[5]; //variable to help to choose
-                    scanf("%s",yesOrNo);
+                    gets(yesOrNo);
                     if(strcmp(yesOrNo,"1")==0)
                     {
                         print_accounts(store);
