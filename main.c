@@ -977,9 +977,9 @@ void menu()
                 }
                 else if(strcmp(n,"4")==0)
                 {
-                    for (int l=0 ; l<NumberOfAccounts ; l++)
+                    for (int i=0 ; i<NumberOfAccounts ; i++)
                     {
-                        print_accounts(acc[l]);
+                        print_accounts(acc[i]);
                     }
                 }
 
