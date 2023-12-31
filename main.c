@@ -153,7 +153,7 @@ int check_mail(char mail[]) // to check whether the entered email is correct or 
     // checks for fixed format (only check the domain part)
     char* domain = mail + i; // points to the domain part of the email
 
-    while (k < 10 && domain[k] != '\0')
+    while (k < 14 && domain[k] != '\0')
     {
         if (domain[k] != temp1[k] && domain[k] != temp2[k] && domain[k] != temp3[k] && domain[k] != temp4[k])
         {
