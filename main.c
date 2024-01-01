@@ -310,7 +310,7 @@ void withdraw(char accountNumber[],char amount[])
 
 }
 
-void transfer(char fromAccountNumber, char toAccountNumber, char amount[])
+void transfer(char fromAccountNumber[], char toAccountNumber[], char amount[])
 {
     int fromAccount, toAccount;
     double transferamount;
@@ -319,7 +319,12 @@ void transfer(char fromAccountNumber, char toAccountNumber, char amount[])
     if (accountsearch(fromAccountNumber, &fromAccount) == 1 &&
             accountsearch(toAccountNumber, &toAccount) == 1 && strcmp(fromAccountNumber,toAccountNumber)!=0)
     {
-        sscanf(amount,"%lf",&transferamount); //to transform string into double
+        if (sscanf(amount, "%lf", &transferamount) != 1)
+        {
+            printf("Invalid amount format.\n");
+            return;
+        }
+//to transform string into double
 
         if (acc[fromAccount].balance >= transferamount)
         {
@@ -329,14 +334,15 @@ void transfer(char fromAccountNumber, char toAccountNumber, char amount[])
             if( saveTransactions())
             {
                 printf("Transfer completed successfully\n");
-                printf("From Account: %s\n",acc[fromAccount].accountnum);
-                printf("To Account: %s\n",acc[toAccount].accountnum);
-                Transaction newtrans1[MAX_TRANSACTION_LINE_LENGTH];
-                sprintf(newtrans1, "transfer - %.2lf\n", transferamount); //to convert double into string
-                addTransaction(newtrans1,&acc[fromAccount].accountnum); //to add transaction to file to the account transfered from
-                Transaction newtrans2[MAX_TRANSACTION_LINE_LENGTH];
-                sprintf(newtrans2, "transfer + %.2lf\n", transferamount); //to convert double into string
-                addTransaction(newtrans2,&acc[toAccount].accountnum); //to add transaction to file to the account transfered to
+                printf("From Account: %s\n", acc[fromAccount].accountnum);
+                printf("To Account: %s\n", acc[toAccount].accountnum);
+
+                Transaction newtrans[MAX_TRANSACTION_LINE_LENGTH];
+                sprintf(newtrans, "transfer - %.2lf\n", transferamount);
+                addTransaction(newtrans, &acc[fromAccount].accountnum);
+                sprintf(newtrans, "transfer + %.2lf\n", transferamount);
+                addTransaction(newtrans, &acc[toAccount].accountnum);
+
             }
         }
         else
@@ -722,7 +728,7 @@ void save()
     do
     {
         printf("Do you want to save ? Enter the number of your choice\n1- YES\n2- NO\n");
-        gets(choice);
+        scanf("%s",choice);
         if (strcmp(choice, "1") == 0)
         {
             FILE *ptr=fopen("accounts.txt","w");
