@@ -1,5 +1,4 @@
 #include <stdio.h>
-<<<<<<< Updated upstream
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
@@ -7,8 +6,7 @@
 #define maxcol 500
 #define MAX_TRANSACTIONS 5
 #define MAX_TRANSACTION_LINE_LENGTH 100
-    // reem
-    typedef struct
+typedef struct
 {
     char transactionDetails[MAX_TRANSACTION_LINE_LENGTH];
 } Transaction;
@@ -312,7 +310,7 @@ void withdraw(char accountNumber[], char amount[])
     }
 }
 
-void transfer(char fromAccountNumber[], char toAccountNumber[], char amount[])
+void transfer(char *fromAccountNumber, char *toAccountNumber, char amount[])
 {
     int fromAccount, toAccount;
     double transferamount;
@@ -321,12 +319,7 @@ void transfer(char fromAccountNumber[], char toAccountNumber[], char amount[])
     if (accountsearch(fromAccountNumber, &fromAccount) == 1 &&
         accountsearch(toAccountNumber, &toAccount) == 1 && strcmp(fromAccountNumber, toAccountNumber) != 0)
     {
-        if (sscanf(amount, "%lf", &transferamount) != 1)
-        {
-            printf("Invalid amount format.\n");
-            return;
-        }
-        // to transform string into double
+        sscanf(amount, "%lf", &transferamount); // to transform string into double
 
         if (acc[fromAccount].balance >= transferamount)
         {
@@ -338,12 +331,12 @@ void transfer(char fromAccountNumber[], char toAccountNumber[], char amount[])
                 printf("Transfer completed successfully\n");
                 printf("From Account: %s\n", acc[fromAccount].accountnum);
                 printf("To Account: %s\n", acc[toAccount].accountnum);
-
-                Transaction newtrans[MAX_TRANSACTION_LINE_LENGTH];
-                sprintf(newtrans, "transfer - %.2lf\n", transferamount);
-                addTransaction(newtrans, &acc[fromAccount].accountnum);
-                sprintf(newtrans, "transfer + %.2lf\n", transferamount);
-                addTransaction(newtrans, &acc[toAccount].accountnum);
+                Transaction newtrans1[MAX_TRANSACTION_LINE_LENGTH];
+                sprintf(newtrans1, "transfer - %.2lf\n", transferamount); // to convert double into string
+                addTransaction(newtrans1, &acc[fromAccount].accountnum);  // to add transaction to file to the account transfered from
+                Transaction newtrans2[MAX_TRANSACTION_LINE_LENGTH];
+                sprintf(newtrans2, "transfer + %.2lf\n", transferamount); // to convert double into string
+                addTransaction(newtrans2, &acc[toAccount].accountnum);    // to add transaction to file to the account transfered to
             }
         }
         else
@@ -464,6 +457,7 @@ void deleteAccount(Accounts arraccounts[], int *numofaccounts)
         else
         {
             printf("Account does not exist or written wrong please try again.\n");
+            deleteAccount(acc, &NumberOfAccounts);
         }
     } while (!check_numbers(numaccountdel, 10));
 
@@ -703,7 +697,7 @@ void save()
     do
     {
         printf("Do you want to save ? Enter the number of your choice\n1- YES\n2- NO\n");
-        scanf("%s", choice);
+        gets(choice);
         if (strcmp(choice, "1") == 0)
         {
             FILE *ptr = fopen("accounts.txt", "w");
@@ -723,6 +717,7 @@ void save()
         }
         else if (strcmp(choice, "2") == 0)
         {
+            NumberOfAccounts--;
             exit_program();
         }
 
@@ -749,6 +744,28 @@ void exit_program()
         else if (strcmp(choice, "2") == 0)
         {
             menu();
+            break;
+        }
+        else
+            ("Sorry I don't understand your choice please enter a valid choice: \n");
+    } while ((strcmp(choice, "1") != 0) || (strcmp(choice, "2") != 0));
+}
+void exit_before_login()
+{
+    char choice[5];
+    do
+    {
+        printf("Do you want to exit? Enter the number of your choice.\n1-YES\n2-NO\n");
+        scanf("%s", choice);
+        getchar();
+        if (strcmp(choice, "1") == 0)
+        {
+            printf("Exiting program.\n");
+            exit(0);
+        }
+        else if (strcmp(choice, "2") == 0)
+        {
+            main();
             break;
         }
         else
@@ -911,7 +928,7 @@ void menu()
                 gets(amount);
             } while (!checkbalance(amount));
 
-            transfer(fromAccount, toAccount, amount); // pass accountnumber as a pointer to allow access all the data in that accountnumber
+            transfer(&fromAccount, &toAccount, amount); // pass accountnumber as a pointer to allow access all the data in that accountnumber
         }
         else if (strcmp(choice, "9") == 0)
         {
@@ -992,7 +1009,7 @@ int main()
                 {
                     printf("Wrong, try again\n");
                 }
-            } while (1);               // Loop until valid login
+            } while (1); // Loop until valid login
             char temp[maxrow][maxcol]; // temporary array to avoid editing in the file and\or the acc array
             int i = 0;
             FILE *ptr = fopen("accounts.txt", "r");
@@ -1018,15 +1035,9 @@ int main()
             menu();
         }
         else if (strcmp(choice, "2") == 0)
-            exit_program();
+            exit_before_login();
         else
             printf("Sorry Your choice is invalid!");
     } while (strcmp(choice, "2") != 0 || strcmp(choice, "1") != 0);
     return 0;
-    == == == =
-#include <stdlib.h>
-                 void main()
-    {
-        printf("hello");
->>>>>>> Stashed changes
-    }
+}
