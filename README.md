@@ -1,4 +1,5 @@
 This is a guide to our system.
+This is a complete Bank Managment System project with all the needed features. More details about features, algorithms used, and a user manual are attached below:
 1. Structures: 
 Transaction Structure (Transaction): This structure is used to store transaction 
 details. 
