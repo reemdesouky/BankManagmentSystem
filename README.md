@@ -1,4 +1,6 @@
 This is a complete Bank Managment System project with all the needed features. there are a main function, a separated functions ,but they are also contained in the main, and the test files which are 'accounts.txt' and 'users.txt'. all you need to look at is 'main.c', the test files, and 'README.md' of course. More details about features, algorithms used, and a user manual are attached below:
+
+
 1. Structures: 
 Transaction Structure (Transaction): This structure is used to store transaction 
 details. 
@@ -66,6 +68,8 @@ readability.
 3.Consistency and Flexibility: Avoiding magic numbers improves code 
 consistency, while easy modification of constants offers flexibility and 
 portability. 
+
+
 USER MANUAL FOR THE BANK MANAGEMENT SYSTEM 
 USER MANUAL. 
 1. Introduction  
